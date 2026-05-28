@@ -186,6 +186,13 @@ export function App() {
     setModal({ prefillDay: day });
   }, []);
 
+  const moveTask = useCallback((task: Task, newDay: DayKey) => {
+    setState(s => ({
+      ...s,
+      tasks: s.tasks.map(t => t.id === task.id ? { ...t, day: newDay } : t),
+    }));
+  }, []);
+
   const saveNew = useCallback((data: { name: string; day: DayKey; end: DayKey | null; prio: 1 | 2 | 3 }) => {
     setState(s => ({
       ...s,
@@ -287,6 +294,7 @@ export function App() {
             onToggle={toggle}
             onDelete={del}
             onAdd={openAdd}
+            onMove={moveTask}
           />
         ) : (
           <TodayView

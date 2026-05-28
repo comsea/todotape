@@ -7,12 +7,22 @@ interface MiniTaskProps {
   weekDates: DayMeta[];
   onToggle: (task: Task) => void;
   onDelete: (task: Task) => void;
+  onDragStart?: () => void;
 }
 
-export function MiniTask({ task, weekDates, onToggle, onDelete }: MiniTaskProps) {
+export function MiniTask({ task, weekDates, onToggle, onDelete, onDragStart }: MiniTaskProps) {
   const endDate = task.end ? weekDates.find(d => d.key === task.end) : null;
   return (
-    <div className="mini-task" data-prio={task.prio}>
+    <div
+      className="mini-task"
+      data-prio={task.prio}
+      draggable
+      onDragStart={e => {
+        e.dataTransfer.effectAllowed = 'move';
+        onDragStart?.();
+      }}
+      style={{ cursor: 'grab' }}
+    >
       <div className="mini-task-row">
         <Checkbox checked={false} onChange={() => onToggle(task)} />
         <span className="mini-task-name">{task.name}</span>
