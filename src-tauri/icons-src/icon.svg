@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Cassette-style icon: pink play triangle on near-black rounded square -->
+  <rect width="512" height="512" rx="90" fill="#1c1b18"/>
+  <!-- Play triangle, centred slightly right of centre -->
+  <polygon points="172,136 172,368 380,252" fill="#ff2d8a"/>
+  <!-- Spool circles at bottom (decorative cassette detail) -->
+  <circle cx="155" cy="378" r="32" fill="none" stroke="#ff2d8a" stroke-width="7" opacity="0.85"/>
+  <circle cx="357" cy="378" r="32" fill="none" stroke="#ff2d8a" stroke-width="7" opacity="0.85"/>
+</svg>

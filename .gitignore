@@ -1,0 +1,26 @@
+node_modules/
+dist/
+src-tauri/target/
+src-tauri/gen/
+
+# Generated assets (reproduced via `npm run setup`)
+public/fonts/
+src-tauri/icons/
+
+# Tauri build artifacts
+*.msi
+*.exe
+*.deb
+*.AppImage
+*.dmg
+*.app
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
