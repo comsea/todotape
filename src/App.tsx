@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import type { AppState, TweakSettings, DayKey, DayMeta } from './store/types';
+import type { AppState, TweakSettings, DayKey, DayMeta, WeekKey } from './store/types';
 import { DAYS, DAY_KEYS, MONTHS_FR, DEFAULT_SETTINGS } from './store/types';
 import { loadState, saveState, loadSettings, saveSettings, clearAll } from './store/persistence';
 import { makeSeedState } from './store/seed';
@@ -11,11 +11,11 @@ import type { Task } from './store/types';
 
 // ── date helpers ────────────────────────────────────────────────────────────
 
-function computeWeek(): DayMeta[] {
+function computeWeek(offsetWeeks: number): DayMeta[] {
   const today = new Date();
   const dow = (today.getDay() + 6) % 7; // 0 = Mon
   const monday = new Date(today);
-  monday.setDate(today.getDate() - dow);
+  monday.setDate(today.getDate() - dow + offsetWeeks * 7);
   monday.setHours(0, 0, 0, 0);
   return DAYS.map((d, i) => {
     const date = new Date(monday);
@@ -57,10 +57,11 @@ export function App() {
   const [loading, setLoading] = useState(true);
   const [state, setState]     = useState<AppState>({ tasks: [], done: [] });
   const [settings, setSettings] = useState<TweakSettings>(DEFAULT_SETTINGS);
-  const [view, setView]         = useState<'week' | 'today'>('week');
-  const [modal, setModal]       = useState<{ prefillDay?: DayKey } | null>(null);
+  const [view, setView]         = useState<'week' | 'next' | 'today'>('week');
+  const [modal, setModal]       = useState<{ prefillDay?: DayKey; prefillWeek?: WeekKey } | null>(null);
   const [prefsOpen, setPrefsOpen] = useState(false);
-  const weekDates = useMemo(() => computeWeek(), []);
+  const currentWeekDates = useMemo(() => computeWeek(0), []);
+  const nextWeekDates    = useMemo(() => computeWeek(1), []);
   const [todayKey, setTodayKey] = useState<DayKey>(getTodayKey);
 
   // Recalculate todayKey at midnight
@@ -114,12 +115,12 @@ export function App() {
       const delay = next.getTime() - now.getTime();
       notifTimerRef.current = setTimeout(() => {
         const key = getTodayKey();
-        const count = state.tasks.filter(t => t.day === key).length;
+        const count = state.tasks.filter(t => t.day === key && t.week === 'current').length;
         const body = count === 0
           ? "Aucune tâche prévue aujourd'hui — journée libre ♥"
           : `${count} tâche${count > 1 ? 's' : ''} au programme aujourd'hui`;
         fireNotification(body);
-        schedule(); // reschedule for the next day
+        schedule();
       }, delay);
     };
     schedule();
@@ -132,7 +133,10 @@ export function App() {
     let unlisten: (() => void) | null = null;
     import('@tauri-apps/api/event').then(({ listen }) => {
       listen<void>('menu:new-task', () => {
-        setModal({ prefillDay: view === 'today' ? todayKey : undefined });
+        setModal({
+          prefillDay: view === 'today' ? todayKey : undefined,
+          prefillWeek: view === 'next' ? 'next' : 'current',
+        });
       }).then(fn => { unlisten = fn; });
     });
     return () => { unlisten?.(); };
@@ -141,13 +145,17 @@ export function App() {
   // Global keyboard shortcuts
   useEffect(() => {
     const h = (e: KeyboardEvent) => {
-      if (modal) return; // modal handles its own Escape
+      if (modal) return;
       if (e.ctrlKey && e.key === 'n') {
         e.preventDefault();
-        setModal({ prefillDay: view === 'today' ? todayKey : undefined });
+        setModal({
+          prefillDay: view === 'today' ? todayKey : undefined,
+          prefillWeek: view === 'next' ? 'next' : 'current',
+        });
       }
-      if (e.ctrlKey && e.key === '1') { e.preventDefault(); setView('week'); }
-      if (e.ctrlKey && e.key === '2') { e.preventDefault(); setView('today'); }
+      if (e.ctrlKey && e.key === '1') { e.preventDefault(); setView('today'); }
+      if (e.ctrlKey && e.key === '2') { e.preventDefault(); setView('week'); }
+      if (e.ctrlKey && e.key === '3') { e.preventDefault(); setView('next'); }
       if (e.key === 'Escape' && prefsOpen) setPrefsOpen(false);
     };
     window.addEventListener('keydown', h);
@@ -182,18 +190,18 @@ export function App() {
       : { ...s, tasks: s.tasks.filter(x => x.id !== task.id) });
   }, []);
 
-  const openAdd = useCallback((day?: DayKey) => {
-    setModal({ prefillDay: day });
+  const openAdd = useCallback((day?: DayKey, week?: WeekKey) => {
+    setModal({ prefillDay: day, prefillWeek: week });
   }, []);
 
-  const moveTask = useCallback((task: Task, newDay: DayKey) => {
+  const moveTask = useCallback((task: Task, newDay: DayKey, newWeek: WeekKey) => {
     setState(s => ({
       ...s,
-      tasks: s.tasks.map(t => t.id === task.id ? { ...t, day: newDay } : t),
+      tasks: s.tasks.map(t => t.id === task.id ? { ...t, day: newDay, week: newWeek } : t),
     }));
   }, []);
 
-  const saveNew = useCallback((data: { name: string; day: DayKey; end: DayKey | null; prio: 1 | 2 | 3 }) => {
+  const saveNew = useCallback((data: { name: string; day: DayKey; week: WeekKey; end: DayKey | null; endWeek: WeekKey | null; prio: 1 | 2 | 3 }) => {
     setState(s => ({
       ...s,
       tasks: [...s.tasks, { ...data, id: Math.random().toString(36).slice(2, 9), done: false }],
@@ -216,9 +224,10 @@ export function App() {
   // ── derived counters ───────────────────────────────────────────────────────
 
   const totals = {
-    today: state.tasks.filter(x => x.day === todayKey).length,
-    todo:  state.tasks.length,
-    done:  state.done.length,
+    today: state.tasks.filter(x => x.day === todayKey && x.week === 'current').length,
+    current: state.tasks.filter(x => x.week === 'current').length,
+    next: state.tasks.filter(x => x.week === 'next').length,
+    done: state.done.length,
   };
 
   const accent = settings.accent;
@@ -243,7 +252,8 @@ export function App() {
         </div>
         <div className="app-counters">
           <span><b>{totals.today}</b> aujourd'hui</span>
-          <span><b>{totals.todo}</b> cette semaine</span>
+          <span><b>{totals.current}</b> cette semaine</span>
+          <span><b>{totals.next}</b> sem. prochaine</span>
           <span><b>{totals.done}</b> ✓ face B</span>
         </div>
       </header>
@@ -252,18 +262,25 @@ export function App() {
       <div className="toolbar">
         <div className="view-tabs big">
           <button
-            className={`view-tab ${view === 'week' ? 'is-active' : ''}`}
-            onClick={() => setView('week')}
-            title="Ctrl+1"
-          >
-            SEMAINE
-          </button>
-          <button
             className={`view-tab ${view === 'today' ? 'is-active' : ''}`}
             onClick={() => setView('today')}
-            title="Ctrl+2"
+            title="Ctrl+1"
           >
             AUJOURD'HUI
+          </button>
+          <button
+            className={`view-tab ${view === 'week' ? 'is-active' : ''}`}
+            onClick={() => setView('week')}
+            title="Ctrl+2"
+          >
+            SEMAINE S
+          </button>
+          <button
+            className={`view-tab ${view === 'next' ? 'is-active' : ''}`}
+            onClick={() => setView('next')}
+            title="Ctrl+3"
+          >
+            SEMAINE S+1
           </button>
         </div>
         <div className="toolbar-actions">
@@ -277,7 +294,10 @@ export function App() {
           </button>
           <button
             className="btn-sketch primary"
-            onClick={() => openAdd(view === 'today' ? todayKey : undefined)}
+            onClick={() => openAdd(
+              view === 'today' ? todayKey : undefined,
+              view === 'next' ? 'next' : 'current',
+            )}
             title="Ctrl+N"
           >
             + Nouvelle tâche
@@ -287,23 +307,34 @@ export function App() {
 
       {/* ── main canvas ────────────────────────────────────────────────── */}
       <main className="canvas">
-        {view === 'week' ? (
-          <WeekView
-            state={state}
-            weekDates={weekDates}
-            onToggle={toggle}
-            onDelete={del}
-            onAdd={openAdd}
-            onMove={moveTask}
-          />
-        ) : (
+        {view === 'today' ? (
           <TodayView
             state={state}
-            weekDates={weekDates}
+            weekDates={currentWeekDates}
             todayKey={todayKey}
             onToggle={toggle}
             onDelete={del}
             onAdd={openAdd}
+          />
+        ) : view === 'week' ? (
+          <WeekView
+            state={state}
+            weekDates={currentWeekDates}
+            weekKey="current"
+            onToggle={toggle}
+            onDelete={del}
+            onAdd={(day) => openAdd(day, 'current')}
+            onMove={moveTask}
+          />
+        ) : (
+          <WeekView
+            state={state}
+            weekDates={nextWeekDates}
+            weekKey="next"
+            onToggle={toggle}
+            onDelete={del}
+            onAdd={(day) => openAdd(day, 'next')}
+            onMove={moveTask}
           />
         )}
       </main>
@@ -315,8 +346,9 @@ export function App() {
       {/* ── modal ──────────────────────────────────────────────────────── */}
       {modal && (
         <AddTaskModal
-          defaults={{ day: modal.prefillDay }}
-          weekDates={weekDates}
+          defaults={{ day: modal.prefillDay, week: modal.prefillWeek ?? 'current' }}
+          currentWeekDates={currentWeekDates}
+          nextWeekDates={nextWeekDates}
           todayKey={todayKey}
           onSave={saveNew}
           onClose={() => setModal(null)}

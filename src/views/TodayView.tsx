@@ -15,18 +15,17 @@ interface TodayViewProps {
 export function TodayView({ state, weekDates, todayKey, onToggle, onDelete, onAdd }: TodayViewProps) {
   const todayMeta  = weekDates.find(d => d.key === todayKey)!;
   const todayTasks = useMemo(
-    () => state.tasks.filter(t => t.day === todayKey).sort((a, b) => b.prio - a.prio),
+    () => state.tasks.filter(t => t.day === todayKey && t.week === 'current').sort((a, b) => b.prio - a.prio),
     [state.tasks, todayKey],
   );
   const todayDone = useMemo(
-    () => state.done.filter(t => t.day === todayKey),
+    () => state.done.filter(t => t.day === todayKey && t.week === 'current'),
     [state.done, todayKey],
   );
 
   const [focusedIdx, setFocusedIdx] = useState<number | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
-  // Keyboard ↑/↓ navigation within the today list
   useEffect(() => {
     const h = (e: KeyboardEvent) => {
       if (!listRef.current?.contains(document.activeElement) && focusedIdx === null) return;
@@ -65,7 +64,8 @@ export function TodayView({ state, weekDates, todayKey, onToggle, onDelete, onAd
             <BigTask
               key={t.id}
               task={t}
-              weekDates={weekDates}
+              currentWeekDates={weekDates}
+              nextWeekDates={weekDates}
               onToggle={onToggle}
               onDelete={onDelete}
               focused={focusedIdx === i}

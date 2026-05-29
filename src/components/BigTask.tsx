@@ -4,7 +4,8 @@ import { Bolts } from './Bolts';
 
 interface BigTaskProps {
   task: Task;
-  weekDates: DayMeta[];
+  currentWeekDates: DayMeta[];
+  nextWeekDates: DayMeta[];
   onToggle: (task: Task) => void;
   onDelete: (task: Task) => void;
   focused?: boolean;
@@ -12,8 +13,15 @@ interface BigTaskProps {
   onFocus?: () => void;
 }
 
-export function BigTask({ task, weekDates, onToggle, onDelete, focused, tabIndex, onFocus }: BigTaskProps) {
-  const endDate = task.end ? weekDates.find(d => d.key === task.end) : null;
+export function BigTask({ task, currentWeekDates, nextWeekDates, onToggle, onDelete, focused, tabIndex, onFocus }: BigTaskProps) {
+  const endDates = task.endWeek === 'next' ? nextWeekDates : currentWeekDates;
+  const endDate = task.end ? endDates.find(d => d.key === task.end) : null;
+  const endLabel = endDate
+    ? task.endWeek === 'next'
+      ? `→ FIN ${endDate.short} S+1`
+      : `→ FIN ${endDate.short}`
+    : null;
+
   return (
     <div
       className={`big-task ${task.done ? 'done' : ''} ${focused ? 'focused' : ''}`}
@@ -25,7 +33,7 @@ export function BigTask({ task, weekDates, onToggle, onDelete, focused, tabIndex
     >
       <Checkbox checked={!!task.done} onChange={() => onToggle(task)} size="lg" />
       <span className="name">{task.name}</span>
-      {endDate && <span className="deadline">→ FIN {endDate.short}</span>}
+      {endLabel && <span className="deadline">{endLabel}</span>}
       <Bolts n={task.prio} />
       <button
         type="button"

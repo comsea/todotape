@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import type { AppState, DayKey, DayMeta } from '../store/types';
+import type { AppState, DayKey, DayMeta, WeekKey } from '../store/types';
 import { DAY_KEYS } from '../store/types';
 import { MiniTask } from '../components/MiniTask';
 import { DoneDrawer } from './DoneDrawer';
@@ -8,44 +8,46 @@ import type { Task } from '../store/types';
 interface WeekViewProps {
   state: AppState;
   weekDates: DayMeta[];
+  weekKey: WeekKey;
   onToggle: (task: Task) => void;
   onDelete: (task: Task) => void;
   onAdd: (day: DayKey) => void;
-  onMove: (task: Task, newDay: DayKey) => void;
+  onMove: (task: Task, newDay: DayKey, newWeek: WeekKey) => void;
 }
 
 const MONTHS_SHORT = ['Janv.','Févr.','Mars','Avr.','Mai','Juin','Juil.','Août','Sept.','Oct.','Nov.','Déc.'];
 const DAY_NAMES = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
 
-export function WeekView({ state, weekDates, onToggle, onDelete, onAdd, onMove }: WeekViewProps) {
+export function WeekView({ state, weekDates, weekKey, onToggle, onDelete, onAdd, onMove }: WeekViewProps) {
   const [selected, setSelected] = useState<Task | null>(null);
 
   const byDay = useMemo(() => {
     const m = Object.fromEntries(DAY_KEYS.map(k => [k, [] as Task[]])) as Record<DayKey, Task[]>;
     for (const t of state.tasks) {
-      m[t.day].push(t);
+      if (t.week === weekKey) m[t.day].push(t);
     }
     for (const k of DAY_KEYS) {
       m[k].sort((a, b) => b.prio - a.prio);
     }
     return m;
-  }, [state.tasks]);
+  }, [state.tasks, weekKey]);
+
+  const doneTasks = useMemo(
+    () => state.done.filter(t => t.week === weekKey),
+    [state.done, weekKey],
+  );
 
   function handleTaskClick(task: Task) {
-    if (selected?.id === task.id) {
-      setSelected(null); // désélectionne si on reclique
-    } else {
-      setSelected(task);
-    }
+    setSelected(prev => prev?.id === task.id ? null : task);
   }
 
   function handleDayClick(dayKey: DayKey) {
     if (!selected) return;
-    if (selected.day !== dayKey) {
-      onMove(selected, dayKey);
-    }
+    onMove(selected, dayKey, weekKey);
     setSelected(null);
   }
+
+  const scopeLabel = weekKey === 'current' ? 'semaine' : 'semaine prochaine';
 
   return (
     <>
@@ -83,7 +85,8 @@ export function WeekView({ state, weekDates, onToggle, onDelete, onAdd, onMove }
                 <MiniTask
                   key={t.id}
                   task={t}
-                  weekDates={weekDates}
+                  currentWeekDates={weekDates}
+                  nextWeekDates={weekDates}
                   onToggle={onToggle}
                   onDelete={onDelete}
                   onSelect={handleTaskClick}
@@ -103,8 +106,8 @@ export function WeekView({ state, weekDates, onToggle, onDelete, onAdd, onMove }
       </div>
 
       <DoneDrawer
-        items={state.done}
-        scope="semaine"
+        items={doneTasks}
+        scope={scopeLabel}
         onToggle={onToggle}
         onDelete={onDelete}
       />

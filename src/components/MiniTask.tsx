@@ -4,15 +4,23 @@ import { Bolts } from './Bolts';
 
 interface MiniTaskProps {
   task: Task;
-  weekDates: DayMeta[];
+  currentWeekDates: DayMeta[];
+  nextWeekDates: DayMeta[];
   onToggle: (task: Task) => void;
   onDelete: (task: Task) => void;
   onSelect?: (task: Task) => void;
   isSelected?: boolean;
 }
 
-export function MiniTask({ task, weekDates, onToggle, onDelete, onSelect, isSelected }: MiniTaskProps) {
-  const endDate = task.end ? weekDates.find(d => d.key === task.end) : null;
+export function MiniTask({ task, currentWeekDates, nextWeekDates, onToggle, onDelete, onSelect, isSelected }: MiniTaskProps) {
+  const endDates = task.endWeek === 'next' ? nextWeekDates : currentWeekDates;
+  const endDate = task.end ? endDates.find(d => d.key === task.end) : null;
+  const endLabel = endDate
+    ? task.endWeek === 'next'
+      ? `→ ${endDate.short} S+1`
+      : `→ ${endDate.short}`
+    : null;
+
   return (
     <div
       className="mini-task"
@@ -50,7 +58,7 @@ export function MiniTask({ task, weekDates, onToggle, onDelete, onSelect, isSele
       </div>
       <div className="mini-task-meta">
         <Bolts n={task.prio} />
-        {endDate && <span className="deadline">→ {endDate.short}</span>}
+        {endLabel && <span className="deadline">{endLabel}</span>}
       </div>
     </div>
   );

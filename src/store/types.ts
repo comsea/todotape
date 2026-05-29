@@ -1,10 +1,13 @@
 export type DayKey = 'lun' | 'mar' | 'mer' | 'jeu' | 'ven' | 'sam' | 'dim';
+export type WeekKey = 'current' | 'next';
 
 export interface Task {
   id: string;
   name: string;
   day: DayKey;
+  week: WeekKey;   // ← nouveau
   end: DayKey | null;
+  endWeek: WeekKey | null; // ← nouveau
   prio: 1 | 2 | 3;
   done: boolean;
 }
@@ -18,7 +21,7 @@ export interface TweakSettings {
   accent: string;
   paper_grid: boolean;
   density: 'compact' | 'regular' | 'aéré';
-  default_view: 'week' | 'today';
+  default_view: 'week' | 'next' | 'today';
   daily_notification: boolean;
   notification_time: string;
   start_with_windows: boolean;

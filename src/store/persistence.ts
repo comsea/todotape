@@ -1,8 +1,24 @@
-import type { AppState, TweakSettings } from './types';
+import type { AppState, Task, TweakSettings } from './types';
 import { DEFAULT_SETTINGS } from './types';
 import { makeSeedState } from './seed';
 
 const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
+
+// ── migration : ajoute week/endWeek aux anciennes tâches ────────────────────
+
+function migrateTask(t: Task): Task {
+  return {
+    ...t,
+    week: t.week ?? 'current',
+    endWeek: t.endWeek ?? null,
+  };
+}
+
+function migrateState(raw: Partial<AppState>): AppState {
+  const tasks = Array.isArray(raw.tasks) ? raw.tasks.map(migrateTask) : [];
+  const done  = Array.isArray(raw.done)  ? raw.done.map(migrateTask)  : [];
+  return { tasks, done };
+}
 
 // ── Tauri store (lazy init) ──────────────────────────────────────────────────
 
@@ -22,14 +38,16 @@ export async function loadState(): Promise<AppState> {
   try {
     if (isTauri) {
       const store = await getStore();
-      const tasks = await store.get<AppState['tasks']>('tasks');
-      const done  = await store.get<AppState['done']>('done');
-      if (Array.isArray(tasks) && Array.isArray(done)) return { tasks, done };
+      const tasks = await store.get<Task[]>('tasks');
+      const done  = await store.get<Task[]>('done');
+      if (Array.isArray(tasks) && Array.isArray(done))
+        return migrateState({ tasks, done });
     } else {
       const raw = localStorage.getItem('todotape_v1');
       if (raw) {
         const p = JSON.parse(raw) as Partial<AppState>;
-        if (Array.isArray(p.tasks) && Array.isArray(p.done)) return p as AppState;
+        if (Array.isArray(p.tasks) && Array.isArray(p.done))
+          return migrateState(p);
       }
     }
   } catch (e) {

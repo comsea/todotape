@@ -277,7 +277,7 @@ export function TweaksPanel({ settings, onChange, onReset, onClose }: TweaksPane
         <TweakRadio
           label="Vue par défaut"
           value={settings.default_view}
-          options={['week', 'today'] as const}
+          options={['today', 'week', 'next'] as const}
           onChange={v => onChange('default_view', v)}
         />
 
