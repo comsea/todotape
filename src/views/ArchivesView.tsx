@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { AppState } from '../store/types';
-import { DAY_KEYS, MONTHS_FR } from '../store/types';
+import { MONTHS_FR } from '../store/types';
 
 interface Props { state: AppState; }
 
@@ -26,7 +26,7 @@ function weekLabel(monday: Date): string {
     : `${m1} ${mo1} – ${m2} ${mo2} ${yr}`;
 }
 
-export function ArchivesView({ state }: Props) {
+export function ArchivesView(_: Props) {
   // On simule 8 semaines passées avec des données fictives tirées des tâches done
   const archives = useMemo(() => {
     return Array.from({ length: 8 }, (_, i) => {
@@ -58,7 +58,7 @@ export function ArchivesView({ state }: Props) {
       </div>
 
       <div className="archives-grid">
-        {archives.map((week, i) => (
+        {archives.map((week) => (
           <div key={week.id} className={`archive-card ${week.score === bestScore ? 'is-best' : ''}`}>
             {week.score === bestScore && <div className="archive-best-badge">★ MEILLEURE SEMAINE</div>}
             <div className="archive-cassette">
