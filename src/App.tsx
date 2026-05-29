@@ -9,7 +9,6 @@ import { WeekView }      from './views/WeekView';
 import { TodayView }     from './views/TodayView';
 import { DashboardView } from './views/DashboardView';
 import { ArchivesView }  from './views/ArchivesView';
-import { ScoreView }     from './views/ScoreView';
 import { GradeView }     from './views/GradeView';
 import { AddTaskModal }  from './components/AddTaskModal';
 import { TweaksPanel }   from './components/TweaksPanel';
@@ -17,7 +16,7 @@ import { useServiceWorker } from '@/hooks/useServiceWorker';
 import { APP_VERSION } from './version';
 import type { Task } from './store/types';
 
-type PageId = 'tapes' | 'dashboard' | 'archives' | 'score' | 'grade';
+type PageId = 'tapes' | 'dashboard' | 'archives' | 'grade';
 type TapeView = 'today' | 'week' | 'next';
 
 function computeWeek(offsetWeeks: number): DayMeta[] {
@@ -61,7 +60,6 @@ const NAV: Array<{ id: PageId; icon: string; label: string }> = [
   { id: 'grade',     icon: '🏅', label: 'Grade & XP' },
   { id: 'dashboard', icon: '📊', label: 'Tableau de bord' },
   { id: 'archives',  icon: '🗃', label: 'Archives' },
-  { id: 'score',     icon: '🏆', label: 'Score' },
 ];
 
 export function App() {
@@ -307,7 +305,6 @@ export function App() {
             <div className="xp-bar-fill" style={{ width: `${xpProgress}%` }} />
           </div>
           <div className="xp-grade-badge">
-            <span className="xp-grade-icon">{grade.icon}</span>
             <span className="xp-grade-name">{grade.name}</span>
           </div>
         </div>
@@ -322,9 +319,6 @@ export function App() {
       )}
       {page === 'archives' && (
         <main className="canvas secondary-page"><ArchivesView state={state} /></main>
-      )}
-      {page === 'score' && (
-        <main className="canvas secondary-page"><ScoreView state={state} currentWeekDates={currentWeekDates} todayKey={todayKey} /></main>
       )}
 
       {/* ── Page principale Mes Tapes ── */}
