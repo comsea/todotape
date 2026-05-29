@@ -1,21 +1,44 @@
 export type DayKey = 'lun' | 'mar' | 'mer' | 'jeu' | 'ven' | 'sam' | 'dim';
 export type WeekKey = 'current' | 'next';
+export type RecurrenceKey = 'none' | 'weekly';
 
 export interface Task {
   id: string;
   name: string;
   day: DayKey;
-  week: WeekKey;   // ← nouveau
+  week: WeekKey;
   end: DayKey | null;
-  endWeek: WeekKey | null; // ← nouveau
+  endWeek: WeekKey | null;
   prio: 1 | 2 | 3;
   done: boolean;
+  recurrence: RecurrenceKey; // ← nouveau
+  recurId?: string;          // ← id partagé entre occurrences d'une même récurrence
 }
 
 export interface AppState {
   tasks: Task[];
   done: Task[];
 }
+
+// ── Archives ────────────────────────────────────────────────────────────────
+
+export interface ArchivedDay {
+  key: DayKey;
+  total: number;
+  done: number;
+}
+
+export interface WeekArchive {
+  weekId: string;          // ex. "2025-W21"
+  label: string;           // ex. "19 MAI – 25 MAI 2025"
+  archivedAt: string;      // ISO date
+  days: ArchivedDay[];
+  totalTasks: number;
+  doneTasks: number;
+  score: number;           // 0-100
+}
+
+// ── Settings ─────────────────────────────────────────────────────────────────
 
 export interface TweakSettings {
   accent: string;
@@ -48,6 +71,7 @@ export const DAYS: Array<{ key: DayKey; name: string; short: string }> = [
 
 export const DAY_KEYS: DayKey[] = DAYS.map(d => d.key);
 export const MONTHS_FR = ['JAN','FÉV','MAR','AVR','MAI','JUN','JUL','AOÛ','SEP','OCT','NOV','DÉC'];
+export const MONTHS_LONG = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 
 export const DEFAULT_SETTINGS: TweakSettings = {
   accent: '#ff2d8a',
