@@ -106,7 +106,7 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
 
 .app-brand {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 14px;
 }
 .app-brand h1 {
@@ -127,27 +127,6 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
   font-family: 'Press Start 2P', monospace;
   font-size: 12px;
   transform: rotate(-3deg);
-}
-.brand-sub {
-  font-family: 'VT323', monospace;
-  font-size: 18px;
-  color: var(--ink-soft);
-  letter-spacing: 1px;
-}
-.app-counters {
-  display: flex;
-  gap: 18px;
-  font-family: 'VT323', monospace;
-  font-size: 18px;
-  letter-spacing: 1px;
-  color: var(--ink-soft);
-}
-.app-counters b {
-  color: var(--accent);
-  font-weight: 400;
-  font-family: 'Press Start 2P', monospace;
-  font-size: 14px;
-  margin-right: 4px;
 }
 
 /* ------- toolbar ------- */
@@ -1528,4 +1507,276 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
   opacity: 0.4;
   margin-left: 8px;
   vertical-align: middle;
+}
+
+/* ============================================================
+   Barre XP sous le header
+   ============================================================ */
+
+.xp-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  margin-top: 8px;
+  cursor: pointer;
+}
+.xp-bar-wrap:hover .xp-grade-badge { border-color: var(--accent); }
+
+.xp-bar-track {
+  flex: 1;
+  height: 10px;
+  background: var(--paper-deep);
+  border: 2px solid var(--ink);
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.xp-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 1px;
+  transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 0 8px var(--accent-soft);
+}
+
+.xp-grade-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #1a1917;
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+  padding: 5px 10px;
+  border-radius: 3px;
+  white-space: nowrap;
+  transition: border-color 150ms;
+}
+.xp-grade-icon { font-size: 16px; }
+.xp-grade-name {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  color: var(--accent);
+  letter-spacing: 0.5px;
+}
+
+/* ── Compteurs bas de page ── */
+.bottom-counters {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 32px;
+  padding: 12px 0;
+  border-top: 1px dashed var(--ink-faint);
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  color: var(--ink-soft);
+  letter-spacing: 1px;
+}
+.bottom-counters b {
+  color: var(--accent);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  font-weight: 400;
+  margin-right: 4px;
+}
+
+/* ── Bannière level up ── */
+.levelup-banner {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 300;
+  background: #1a1917;
+  border: 3px solid var(--accent);
+  box-shadow: 6px 6px 0 var(--accent), 0 0 40px rgba(255,45,138,0.3);
+  padding: 20px 32px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  color: var(--accent);
+  letter-spacing: 1px;
+  text-align: center;
+  animation: levelup-pop 300ms cubic-bezier(.4,0,.2,1);
+  pointer-events: none;
+}
+@keyframes levelup-pop {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* ============================================================
+   Page Grade
+   ============================================================ */
+
+.grade-wrap {
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.grade-main { padding: 24px; }
+
+.grade-current {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 0 20px;
+}
+.grade-icon-big { font-size: 64px; line-height: 1; }
+.grade-name-big {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 16px;
+  color: var(--accent);
+  letter-spacing: 2px;
+}
+.grade-xp-total {
+  font-family: 'VT323', monospace;
+  font-size: 28px;
+  color: var(--ink-soft);
+  margin-top: 4px;
+}
+.grade-xp-val {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 22px;
+  color: var(--ink);
+}
+.grade-xp-lbl { color: var(--ink-soft); }
+
+.grade-progress-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--ink-faint);
+}
+.grade-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'VT323', monospace;
+  font-size: 16px;
+  color: var(--ink-soft);
+}
+.grade-progress-bar {
+  height: 14px;
+  background: var(--paper-deep);
+  border: 2px solid var(--ink);
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.grade-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.6s ease;
+  box-shadow: 0 0 10px var(--accent-soft);
+}
+.grade-progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.grade-xp-missing {
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  color: var(--ink-soft);
+}
+.grade-xp-missing b { color: var(--accent); }
+.grade-progress-pct {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  color: var(--ink-soft);
+}
+
+.grade-maxed {
+  text-align: center;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  color: var(--accent);
+  letter-spacing: 1px;
+  padding: 16px;
+  border: 2px dashed var(--accent);
+  margin-top: 12px;
+}
+
+/* Comment gagner XP */
+.grade-howto {
+  border: 2.5px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  background: var(--paper-deep);
+}
+.grade-howto-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  padding: 12px 16px;
+  border-bottom: 2px solid var(--ink);
+  color: var(--ink-soft);
+}
+.grade-howto-list {
+  padding: 8px 0;
+}
+.grade-howto-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  font-family: 'VT323', monospace;
+  font-size: 19px;
+  border-bottom: 1px solid var(--ink-faint);
+}
+.grade-howto-item:last-child { border-bottom: none; }
+.grade-howto-icon { font-size: 18px; width: 24px; text-align: center; }
+.grade-howto-xp {
+  margin-left: auto;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  color: var(--accent);
+}
+
+/* Tableau des grades */
+.grade-table {
+  border: 2.5px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  background: var(--paper-deep);
+}
+.grade-table-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  padding: 12px 16px;
+  border-bottom: 2px solid var(--ink);
+  color: var(--ink-soft);
+}
+.grade-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--ink-faint);
+  font-family: 'VT323', monospace;
+  font-size: 19px;
+  transition: background 100ms;
+}
+.grade-row:last-child { border-bottom: none; }
+.grade-row.locked { opacity: 0.4; }
+.grade-row.is-current {
+  background: var(--paper);
+  border-left: 4px solid var(--accent);
+}
+.grade-row-icon { font-size: 22px; width: 30px; text-align: center; }
+.grade-row-name { flex: 1; font-size: 18px; }
+.grade-row.is-current .grade-row-name { color: var(--accent); }
+.grade-row-xp { color: var(--ink-soft); font-size: 16px; }
+.grade-row-badge {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 6px;
+  color: var(--accent);
+  letter-spacing: 0.5px;
+  border: 1.5px solid var(--accent);
+  padding: 3px 6px;
 }

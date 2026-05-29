@@ -3,18 +3,21 @@ import type { AppState, TweakSettings, DayKey, DayMeta, WeekKey } from './store/
 import { DAYS, DAY_KEYS, MONTHS_FR, DEFAULT_SETTINGS } from './store/types';
 import { loadState, saveState, loadSettings, saveSettings, clearAll, maybeArchivePreviousWeek } from './store/persistence';
 import { makeSeedState } from './store/seed';
+import { loadXP, saveXP, getGrade, getNextGrade, xpForTask, STREAK_BONUS } from './store/xp';
+import type { XPState } from './store/xp';
 import { WeekView }      from './views/WeekView';
 import { TodayView }     from './views/TodayView';
 import { DashboardView } from './views/DashboardView';
 import { ArchivesView }  from './views/ArchivesView';
 import { ScoreView }     from './views/ScoreView';
+import { GradeView }     from './views/GradeView';
 import { AddTaskModal }  from './components/AddTaskModal';
 import { TweaksPanel }   from './components/TweaksPanel';
 import { useServiceWorker } from '@/hooks/useServiceWorker';
 import { APP_VERSION } from './version';
 import type { Task } from './store/types';
 
-type PageId = 'tapes' | 'dashboard' | 'archives' | 'score';
+type PageId = 'tapes' | 'dashboard' | 'archives' | 'score' | 'grade';
 type TapeView = 'today' | 'week' | 'next';
 
 function computeWeek(offsetWeeks: number): DayMeta[] {
@@ -27,8 +30,7 @@ function computeWeek(offsetWeeks: number): DayMeta[] {
     const date = new Date(monday);
     date.setDate(monday.getDate() + i);
     return {
-      ...d,
-      date,
+      ...d, date,
       label: `${String(date.getDate()).padStart(2, '0')} ${MONTHS_FR[date.getMonth()]}`,
       isToday: date.toDateString() === today.toDateString(),
     };
@@ -37,6 +39,10 @@ function computeWeek(offsetWeeks: number): DayMeta[] {
 
 function getTodayKey(): DayKey {
   return DAY_KEYS[(new Date().getDay() + 6) % 7];
+}
+
+function todayISO(): string {
+  return new Date().toISOString().slice(0, 10);
 }
 
 async function fireNotification(body: string) {
@@ -52,6 +58,7 @@ async function fireNotification(body: string) {
 
 const NAV: Array<{ id: PageId; icon: string; label: string }> = [
   { id: 'tapes',     icon: '📼', label: 'Mes tapes' },
+  { id: 'grade',     icon: '🏅', label: 'Grade & XP' },
   { id: 'dashboard', icon: '📊', label: 'Tableau de bord' },
   { id: 'archives',  icon: '🗃', label: 'Archives' },
   { id: 'score',     icon: '🏆', label: 'Score' },
@@ -61,6 +68,8 @@ export function App() {
   const [loading, setLoading]     = useState(true);
   const [state, setState]         = useState<AppState>({ tasks: [], done: [] });
   const [settings, setSettings]   = useState<TweakSettings>(DEFAULT_SETTINGS);
+  const [xp, setXP]               = useState<XPState>({ total: 0, lastStreakDate: null });
+  const [levelUpMsg, setLevelUpMsg] = useState<string | null>(null);
   const [page, setPage]           = useState<PageId>('tapes');
   const [tapeView, setTapeView]   = useState<TapeView>('week');
   const [menuOpen, setMenuOpen]   = useState(false);
@@ -69,7 +78,7 @@ export function App() {
 
   const currentWeekDates = useMemo(() => computeWeek(0), []);
   const nextWeekDates    = useMemo(() => computeWeek(1), []);
-  const [todayKey, setTodayKey] = useState<DayKey>(getTodayKey);
+  const [todayKey, setTodayKey]   = useState<DayKey>(getTodayKey);
 
   useEffect(() => {
     const ms = () => { const n = new Date(), m = new Date(n); m.setHours(24,0,0,0); return m.getTime()-n.getTime(); };
@@ -78,8 +87,11 @@ export function App() {
   }, [todayKey]);
 
   useEffect(() => {
-    Promise.all([loadState(), loadSettings()]).then(([s, cfg]) => {
-      setState(s); setSettings(cfg); setLoading(false);
+    Promise.all([loadState(), loadSettings(), loadXP()]).then(([s, cfg, x]) => {
+      setState(s);
+      setSettings(cfg);
+      setXP(x);
+      setLoading(false);
       maybeArchivePreviousWeek(s);
     });
   }, []);
@@ -93,6 +105,7 @@ export function App() {
   }, [state, loading]);
 
   useEffect(() => { if (!loading) saveSettings(settings); }, [settings, loading]);
+  useEffect(() => { if (!loading) saveXP(xp); }, [xp, loading]);
 
   const notifTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
@@ -127,7 +140,30 @@ export function App() {
     return () => window.removeEventListener('keydown', h);
   }, [modal, page, tapeView, todayKey]);
 
-  // ── mutations ────────────────────────────────────────────────────────────
+  // ── XP : ajouter des points ───────────────────────────────────────────────
+
+  const addXP = useCallback((task: Task) => {
+    setXP(prev => {
+      const earned = xpForTask(task.prio);
+      const prevGrade = getGrade(prev.total);
+
+      // Bonus streak si premier check du jour
+      const today = todayISO();
+      const streakBonus = prev.lastStreakDate !== today ? STREAK_BONUS : 0;
+      const newTotal = prev.total + earned + streakBonus;
+      const newGrade = getGrade(newTotal);
+
+      // Level up ?
+      if (newGrade.name !== prevGrade.name) {
+        setLevelUpMsg(`🎉 NOUVEAU GRADE : ${newGrade.icon} ${newGrade.name.toUpperCase()} !`);
+        setTimeout(() => setLevelUpMsg(null), 4000);
+      }
+
+      return { total: newTotal, lastStreakDate: today };
+    });
+  }, []);
+
+  // ── Mutations ─────────────────────────────────────────────────────────────
 
   const toggle = useCallback((task: Task) => {
     setState(s => {
@@ -138,10 +174,11 @@ export function App() {
       } else {
         const found = s.tasks.find(t => t.id === task.id);
         if (!found) return s;
+        addXP(found); // ← XP gagné ici
         return { tasks: s.tasks.filter(t => t.id !== task.id), done: [{ ...found, done: true }, ...s.done] };
       }
     });
-  }, []);
+  }, [addXP]);
 
   const del = useCallback((task: Task) => {
     setState(s => task.done
@@ -169,10 +206,12 @@ export function App() {
     setSettings(s => ({ ...s, [key]: value }));
   }, []);
 
-  const { needRefresh, updateServiceWorker } = useServiceWorker();
-
   const navigate = (id: PageId) => { setPage(id); setMenuOpen(false); };
   const goHome   = () => { setPage('tapes'); setMenuOpen(false); };
+
+  const { needRefresh, updateServiceWorker } = useServiceWorker();
+
+  // ── Données dérivées ──────────────────────────────────────────────────────
 
   const totals = {
     today:   state.tasks.filter(x => x.day === todayKey && x.week === 'current').length,
@@ -180,6 +219,12 @@ export function App() {
     next:    state.tasks.filter(x => x.week === 'next').length,
     done:    state.done.length,
   };
+
+  const grade    = getGrade(xp.total);
+  const nextGrade = getNextGrade(xp.total);
+  const xpInGrade    = nextGrade ? xp.total - grade.minXP : 0;
+  const xpNeededFull = nextGrade ? nextGrade.minXP - grade.minXP : 1;
+  const xpProgress   = nextGrade ? Math.round((xpInGrade / xpNeededFull) * 100) : 100;
 
   if (loading) return <div className="loading-screen">CHARGEMENT…</div>;
 
@@ -190,21 +235,23 @@ export function App() {
       data-paper-grid={settings.paper_grid ? '1' : '0'}
       data-density={settings.density}
     >
-      {/* overlay */}
       {menuOpen && <div className="nav-overlay" onClick={() => setMenuOpen(false)} />}
 
-      {/* ── Bannière mise à jour PWA ── */}
+      {/* ── Bannière level up ── */}
+      {levelUpMsg && (
+        <div className="levelup-banner">{levelUpMsg}</div>
+      )}
+
+      {/* ── Bannière PWA update ── */}
       {needRefresh && (
         <div className="pwa-update-banner">
           <span className="pwa-update-icon">📼</span>
           <span className="pwa-update-text">Nouvelle version disponible !</span>
-          <button className="pwa-update-btn" onClick={() => updateServiceWorker(true)}>
-            ▶ RECHARGER
-          </button>
+          <button className="pwa-update-btn" onClick={() => updateServiceWorker(true)}>▶ RECHARGER</button>
         </div>
       )}
 
-      {/* drawer */}
+      {/* ── Drawer ── */}
       <nav className={`nav-drawer ${menuOpen ? 'is-open' : ''}`}>
         <div className="nav-drawer-header">
           <div className="nav-lcd">
@@ -219,10 +266,7 @@ export function App() {
         <ul className="nav-list">
           {NAV.map((item, i) => (
             <li key={item.id}>
-              <button
-                className={`nav-item ${page === item.id ? 'is-active' : ''}`}
-                onClick={() => navigate(item.id)}
-              >
+              <button className={`nav-item ${page === item.id ? 'is-active' : ''}`} onClick={() => navigate(item.id)}>
                 <span className="nav-led" />
                 <span className="nav-icon">{item.icon}</span>
                 <span className="nav-label">{item.label}</span>
@@ -238,26 +282,17 @@ export function App() {
         </div>
       </nav>
 
-      {/* ── header ── */}
+      {/* ── Header nettoyé ── */}
       <header className="app-header">
         <div className="app-header-left">
           <button className="burger-btn" onClick={() => setMenuOpen(true)} aria-label="Menu">
             <span /><span /><span />
           </button>
-          <div className="app-brand" onClick={goHome} style={{ cursor: 'pointer' }} title="Retour à l'accueil">
+          <div className="app-brand" onClick={goHome} style={{ cursor: 'pointer' }}>
             <span className="brand-tape">▶</span>
             <h1>TO·DO·TAPE</h1>
-            <span className="brand-sub">retro groove edition</span>
           </div>
         </div>
-        {page === 'tapes' && (
-          <div className="app-counters">
-            <span><b>{totals.today}</b> aujourd'hui</span>
-            <span><b>{totals.current}</b> cette sem.</span>
-            <span><b>{totals.next}</b> S+1</span>
-            <span><b>{totals.done}</b> ✓</span>
-          </div>
-        )}
         {page !== 'tapes' && (
           <div className="page-title-pill">
             {NAV.find(n => n.id === page)?.icon} {NAV.find(n => n.id === page)?.label}
@@ -265,40 +300,44 @@ export function App() {
         )}
       </header>
 
-      {/* ── pages secondaires (Dashboard / Archives / Score) ── */}
-      {page === 'dashboard' && (
-        <main className="canvas secondary-page">
-          <DashboardView state={state} currentWeekDates={currentWeekDates} todayKey={todayKey} />
-        </main>
-      )}
-      {page === 'archives' && (
-        <main className="canvas secondary-page">
-          <ArchivesView state={state} />
-        </main>
-      )}
-      {page === 'score' && (
-        <main className="canvas secondary-page">
-          <ScoreView state={state} currentWeekDates={currentWeekDates} todayKey={todayKey} />
-        </main>
+      {/* ── Barre XP sous le header (page tapes uniquement) ── */}
+      {page === 'tapes' && (
+        <div className="xp-bar-wrap" onClick={() => navigate('grade')} title="Voir mon grade">
+          <div className="xp-bar-track">
+            <div className="xp-bar-fill" style={{ width: `${xpProgress}%` }} />
+          </div>
+          <div className="xp-grade-badge">
+            <span className="xp-grade-icon">{grade.icon}</span>
+            <span className="xp-grade-name">{grade.name}</span>
+          </div>
+        </div>
       )}
 
-      {/* ── page principale Mes Tapes ── */}
+      {/* ── Pages secondaires ── */}
+      {page === 'grade' && (
+        <main className="canvas secondary-page"><GradeView xp={xp} /></main>
+      )}
+      {page === 'dashboard' && (
+        <main className="canvas secondary-page"><DashboardView state={state} currentWeekDates={currentWeekDates} todayKey={todayKey} /></main>
+      )}
+      {page === 'archives' && (
+        <main className="canvas secondary-page"><ArchivesView state={state} /></main>
+      )}
+      {page === 'score' && (
+        <main className="canvas secondary-page"><ScoreView state={state} currentWeekDates={currentWeekDates} todayKey={todayKey} /></main>
+      )}
+
+      {/* ── Page principale Mes Tapes ── */}
       {page === 'tapes' && (
         <>
           <div className="toolbar">
             <div className="view-tabs-wrap">
               <div className="view-tabs big view-tabs-top">
-                <button className={`view-tab ${tapeView === 'today' ? 'is-active' : ''}`} onClick={() => setTapeView('today')}>
-                  AUJOURD'HUI
-                </button>
+                <button className={`view-tab ${tapeView === 'today' ? 'is-active' : ''}`} onClick={() => setTapeView('today')}>AUJOURD'HUI</button>
               </div>
               <div className="view-tabs big view-tabs-weeks">
-                <button className={`view-tab ${tapeView === 'week' ? 'is-active' : ''}`} onClick={() => setTapeView('week')}>
-                  SEMAINE S
-                </button>
-                <button className={`view-tab ${tapeView === 'next' ? 'is-active' : ''}`} onClick={() => setTapeView('next')}>
-                  SEMAINE S+1
-                </button>
+                <button className={`view-tab ${tapeView === 'week' ? 'is-active' : ''}`} onClick={() => setTapeView('week')}>SEMAINE S</button>
+                <button className={`view-tab ${tapeView === 'next' ? 'is-active' : ''}`} onClick={() => setTapeView('next')}>SEMAINE S+1</button>
               </div>
             </div>
             <div className="toolbar-actions">
@@ -306,23 +345,23 @@ export function App() {
               <button className="btn-sketch primary" onClick={() => openAdd(
                 tapeView === 'today' ? todayKey : undefined,
                 tapeView === 'next' ? 'next' : 'current',
-              )}>
-                + Nouvelle tâche
-              </button>
+              )}>+ Nouvelle tâche</button>
             </div>
           </div>
 
           <main className="canvas">
-            {tapeView === 'today' && (
-              <TodayView state={state} weekDates={currentWeekDates} todayKey={todayKey} onToggle={toggle} onDelete={del} onAdd={openAdd} />
-            )}
-            {tapeView === 'week' && (
-              <WeekView state={state} weekDates={currentWeekDates} weekKey="current" onToggle={toggle} onDelete={del} onAdd={day => openAdd(day, 'current')} onMove={moveTask} />
-            )}
-            {tapeView === 'next' && (
-              <WeekView state={state} weekDates={nextWeekDates} weekKey="next" onToggle={toggle} onDelete={del} onAdd={day => openAdd(day, 'next')} onMove={moveTask} />
-            )}
+            {tapeView === 'today' && <TodayView state={state} weekDates={currentWeekDates} todayKey={todayKey} onToggle={toggle} onDelete={del} onAdd={openAdd} />}
+            {tapeView === 'week'  && <WeekView state={state} weekDates={currentWeekDates} weekKey="current" onToggle={toggle} onDelete={del} onAdd={day => openAdd(day, 'current')} onMove={moveTask} />}
+            {tapeView === 'next'  && <WeekView state={state} weekDates={nextWeekDates} weekKey="next" onToggle={toggle} onDelete={del} onAdd={day => openAdd(day, 'next')} onMove={moveTask} />}
           </main>
+
+          {/* Compteurs déplacés en bas */}
+          <div className="bottom-counters">
+            <span><b>{totals.today}</b> aujourd'hui</span>
+            <span><b>{totals.current}</b> cette sem.</span>
+            <span><b>{totals.next}</b> S+1</span>
+            <span><b>{totals.done}</b> ✓ terminées</span>
+          </div>
         </>
       )}
 
