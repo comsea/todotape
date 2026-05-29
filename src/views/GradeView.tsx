@@ -24,6 +24,7 @@ export function GradeView({ xp }: Props) {
 
         <div className="grade-current">
           <div className="grade-icon-big">{current.icon}</div>
+          {/* Même typo Boogaloo que le badge header, aussi gros que le titre */}
           <div className="grade-name-big">{current.name}</div>
           <div className="grade-xp-total">
             <span className="grade-xp-val">{xp.total}</span>
@@ -46,7 +47,7 @@ export function GradeView({ xp }: Props) {
             </div>
           </div>
         )}
-        {!next && <div className="grade-maxed">★ GRADE MAXIMUM — TU ES UNE LÉGENDE ★</div>}
+        {!next && <div className="grade-maxed">★ DIEU DU GROOVE — GRADE ULTIME ATTEINT ★</div>}
       </div>
 
       {/* ── Comment gagner des XP ── */}
@@ -60,7 +61,7 @@ export function GradeView({ xp }: Props) {
               <span className="grade-howto-prio prio-1">●</span>
               <div>
                 <div className="grade-howto-name">Priorité basse</div>
-                <div className="grade-howto-desc">Tâches du quotidien, petites actions</div>
+                <div className="grade-howto-desc">Petites actions du quotidien</div>
               </div>
             </div>
             <span className="grade-howto-xp">+10 XP</span>
@@ -94,7 +95,7 @@ export function GradeView({ xp }: Props) {
               <span className="grade-howto-prio">🔥</span>
               <div>
                 <div className="grade-howto-name">Streak du jour</div>
-                <div className="grade-howto-desc">Coche au moins une tâche chaque jour — le bonus s'active une fois par jour à la première tâche cochée</div>
+                <div className="grade-howto-desc">+15 XP à la première tâche cochée de la journée. Reviens chaque jour pour maintenir ton streak !</div>
               </div>
             </div>
             <span className="grade-howto-xp">+15 XP</span>
@@ -102,13 +103,13 @@ export function GradeView({ xp }: Props) {
         </div>
 
         <div className="grade-howto-tip">
-          💬 <b>Conseil TDAH :</b> commence par une petite tâche priorité 1 pour déclencher le bonus streak et te mettre en mouvement. Le reste suivra !
+          💬 <b>Conseil TDAH :</b> commence par une petite tâche priorité 1 pour déclencher le bonus streak et te mettre en mouvement. Le reste suivra naturellement !
         </div>
       </div>
 
-      {/* ── Tableau des grades ── */}
+      {/* ── Tableau des 20 grades ── */}
       <div className="grade-table">
-        <div className="grade-table-title">🏆 TOUS LES GRADES</div>
+        <div className="grade-table-title">🏆 LES 20 GRADES</div>
         {GRADES.map((g) => {
           const unlocked  = xp.total >= g.minXP;
           const isCurrent = g.name === current.name;
@@ -117,9 +118,10 @@ export function GradeView({ xp }: Props) {
               <span className="grade-row-icon">{unlocked ? g.icon : '🔒'}</span>
               <div className="grade-row-info">
                 <span className="grade-row-name">{g.name}</span>
-                <span className="grade-row-xp">à partir de {g.minXP} XP</span>
+                <span className="grade-row-xp">{g.minXP === 0 ? 'départ' : `à partir de ${g.minXP.toLocaleString('fr-FR')} XP`}</span>
               </div>
               {isCurrent && <span className="grade-row-badge">● EN COURS</span>}
+              {unlocked && !isCurrent && <span className="grade-row-check">✓</span>}
             </div>
           );
         })}

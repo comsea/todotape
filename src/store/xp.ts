@@ -1,8 +1,6 @@
-// ── Système XP / Grades ──────────────────────────────────────────────────────
-
 export interface XPState {
   total: number;
-  lastStreakDate: string | null; // ISO date du dernier bonus streak
+  lastStreakDate: string | null;
 }
 
 export interface Grade {
@@ -12,13 +10,26 @@ export interface Grade {
 }
 
 export const GRADES: Grade[] = [
-  { name: 'Stagiaire',  icon: '📼',  minXP: 0    },
-  { name: 'Beatmaker',  icon: '🎹',  minXP: 100  },
-  { name: 'DJ',         icon: '🎧',  minXP: 300  },
-  { name: 'Producteur', icon: '🎚',  minXP: 600  },
-  { name: 'Artiste',    icon: '🎤',  minXP: 1000 },
-  { name: 'Headliner',  icon: '🎸',  minXP: 2000 },
-  { name: 'Légende',    icon: '🌟',  minXP: 4000 },
+  { name: 'Stagiaire',          icon: '📼',  minXP: 0     },
+  { name: 'Cassettiste',        icon: '🎵',  minXP: 50    },
+  { name: 'Beatmaker',          icon: '🥁',  minXP: 150   },
+  { name: 'Samplneur',          icon: '🎹',  minXP: 300   },
+  { name: 'Loopeur',            icon: '🔁',  minXP: 500   },
+  { name: 'Arrangeur',          icon: '🎼',  minXP: 750   },
+  { name: 'DJ',                 icon: '🎧',  minXP: 1100  },
+  { name: 'Mixeur',             icon: '🎚',  minXP: 1500  },
+  { name: 'Beatboxer',          icon: '🎤',  minXP: 2000  },
+  { name: 'Compositeur',        icon: '🎸',  minXP: 2700  },
+  { name: 'Producteur',         icon: '🖥',  minXP: 3600  },
+  { name: 'Arrangeur Pro',      icon: '🎻',  minXP: 4700  },
+  { name: 'Directeur Musical',  icon: '🎷',  minXP: 6000  },
+  { name: 'Artiste',            icon: '🌟',  minXP: 7500  },
+  { name: 'Headliner',          icon: '🎪',  minXP: 9500  },
+  { name: 'Superstar',          icon: '💫',  minXP: 12000 },
+  { name: 'Icône',              icon: '👑',  minXP: 15000 },
+  { name: 'Légende',            icon: '🏆',  minXP: 19000 },
+  { name: 'Mythique',           icon: '⚡',  minXP: 24000 },
+  { name: 'Dieu du Groove',     icon: '🌈',  minXP: 30000 },
 ];
 
 export function getGrade(xp: number): Grade {
@@ -35,7 +46,6 @@ export function xpForTask(prio: 1 | 2 | 3): number {
 
 export const STREAK_BONUS = 15;
 
-// Persistance XP
 const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
 
 export async function loadXP(): Promise<XPState> {

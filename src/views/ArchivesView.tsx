@@ -169,6 +169,35 @@ export function ArchivesView(_: { state: unknown }) {
 
   return (
     <div className="arc-wrap">
+
+      {/* ── Explication ── */}
+      <div className="page-explainer">
+        <div className="page-explainer-title">📼 C'EST QUOI LES ARCHIVES ?</div>
+        <p>Chaque semaine terminée est automatiquement sauvegardée ici sous forme de <b>cassette</b>. Tu peux voir ton historique et mesurer ta progression semaine après semaine.</p>
+        <div className="page-explainer-tips">
+          <div className="page-explainer-tip">
+            <span>🎵</span>
+            <span><b>La bobine gauche</b> grossit avec les tâches <b>terminées</b> — plus elle est pleine, mieux c'est !</span>
+          </div>
+          <div className="page-explainer-tip">
+            <span>⚙️</span>
+            <span><b>La bobine droite</b> représente les tâches <b>non faites</b> — elle se vide au fil de tes coches.</span>
+          </div>
+          <div className="page-explainer-tip">
+            <span>🎨</span>
+            <span><b>Couleur de la cassette</b> — gris = moins de 35%, orange = 35–69%, bleu = 70–89%, rose = 90–100%.</span>
+          </div>
+          <div className="page-explainer-tip">
+            <span>💯</span>
+            <span><b>Atteindre 100%</b> — coche toutes tes tâches avant la fin de la semaine (dimanche soir). La cassette devient entièrement rose !</span>
+          </div>
+          <div className="page-explainer-tip">
+            <span>🗓</span>
+            <span><b>Archivage automatique</b> — à chaque ouverture de l'app en début de nouvelle semaine, la semaine passée est archivée sans que tu aies rien à faire.</span>
+          </div>
+        </div>
+      </div>
+
       <div className="arc-header">
         <span className="arc-title">📼 DISCOGRAPHIE</span>
         <span className="arc-count">{archives.length} cassette{archives.length > 1 ? 's' : ''}</span>

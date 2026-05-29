@@ -23,7 +23,6 @@ export function DashboardView({ state, currentWeekDates, todayKey }: Props) {
   const doneWeek  = bars.reduce((s, b) => s + b.done, 0);
   const ratioWeek = totalWeek === 0 ? 0 : Math.round((doneWeek / totalWeek) * 100);
 
-  // Streak : jours consécutifs avec au moins 1 tâche faite (depuis aujourd'hui vers le passé)
   const todayIdx = currentWeekDates.findIndex(d => d.key === todayKey);
   let streak = 0;
   for (let i = todayIdx; i >= 0; i--) {
@@ -37,6 +36,27 @@ export function DashboardView({ state, currentWeekDates, todayKey }: Props) {
 
   return (
     <div className="dash-wrap">
+
+      {/* ── Explication ── */}
+      <div className="page-explainer">
+        <div className="page-explainer-title">📊 C'EST QUOI CE TABLEAU ?</div>
+        <p>Le tableau de bord te donne une vue d'ensemble de <b>ta semaine en cours</b>. D'un coup d'œil tu vois quels jours tu as été productif et lesquels sont encore chargés.</p>
+        <div className="page-explainer-tips">
+          <div className="page-explainer-tip">
+            <span>📈</span>
+            <span><b>Ratio complété</b> — pourcentage de toutes tes tâches de la semaine déjà cochées. Vise 100% vendredi soir !</span>
+          </div>
+          <div className="page-explainer-tip">
+            <span>🔥</span>
+            <span><b>Streak</b> — nombre de jours consécutifs où tu as coché au moins une tâche. Plus c'est long, plus tu gagnes d'XP !</span>
+          </div>
+          <div className="page-explainer-tip">
+            <span>📊</span>
+            <span><b>Barres par jour</b> — la barre rose montre les tâches faites, le gris ce qui reste. Un jour entièrement rose = journée parfaite !</span>
+          </div>
+        </div>
+      </div>
+
       <div className="cassette-big dash-card">
         <div className="cassette-big-label">
           <span className="spool" />
@@ -44,7 +64,6 @@ export function DashboardView({ state, currentWeekDates, todayKey }: Props) {
           <span className="spool" />
         </div>
 
-        {/* ── KPIs ── */}
         <div className="dash-kpis">
           <div className="kpi">
             <span className="kpi-val">{ratioWeek}%</span>
@@ -60,31 +79,19 @@ export function DashboardView({ state, currentWeekDates, todayKey }: Props) {
           </div>
         </div>
 
-        {/* ── Graphique barres ── */}
         <div className="dash-chart">
           {bars.map((b, i) => (
             <div key={b.key} className={`bar-col ${b.key === todayKey ? 'is-today' : ''}`}>
               <div className="bar-wrap">
-                {/* barre total */}
-                <div
-                  className="bar bar-total"
-                  style={{ height: `${(b.total / maxTotal) * 100}%` }}
-                />
-                {/* barre done par-dessus */}
-                <div
-                  className="bar bar-done"
-                  style={{ height: `${(b.done / maxTotal) * 100}%` }}
-                />
+                <div className="bar bar-total" style={{ height: `${(b.total / maxTotal) * 100}%` }} />
+                <div className="bar bar-done"  style={{ height: `${(b.done / maxTotal) * 100}%` }} />
               </div>
               <span className="bar-label">{DAY_LABELS[i]}</span>
-              {b.total > 0 && (
-                <span className="bar-count">{b.done}/{b.total}</span>
-              )}
+              {b.total > 0 && <span className="bar-count">{b.done}/{b.total}</span>}
             </div>
           ))}
         </div>
 
-        {/* ── Légende ── */}
         <div className="dash-legend">
           <span><span className="legend-dot done" />Terminées</span>
           <span><span className="legend-dot total" />Restantes</span>
