@@ -56,10 +56,8 @@ html, body { margin: 0; padding: 0; }
 body {
   background: var(--paper);
   color: var(--ink);
-  font-family: 'Kalam', cursive;
-  font-size: 17px;
-  line-height: 1.35;
-  min-height: 100vh;
+  font-family: 'VT323', monospace;
+  font-size: 20px;
 }
 body::before {
   content: "";
@@ -79,7 +77,7 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
 .page {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 36px 36px 96px;
+  padding: max(36px, calc(env(safe-area-inset-top) + 16px)) 36px 96px;
 }
 
 /* ------- app header ------- */
@@ -197,7 +195,7 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
 .view-tabs.big .view-tab { padding: 12px 28px; font-size: 13px; }
 
 .btn-sketch {
-  font-family: 'Kalam', cursive;
+  font-family: 'VT323', monospace;
   font-weight: 700;
   font-size: 16px;
   background: var(--paper);
@@ -369,7 +367,7 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
   border-top: 1.5px dashed var(--ink-faint);
   background: transparent;
   text-align: center;
-  font-family: 'Kalam', cursive;
+  font-family: 'VT323', monospace;
   font-size: 13px;
   padding: 7px 4px 6px;
   color: var(--ink-faint);
@@ -528,7 +526,7 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
   background: transparent;
   border: 2px dashed var(--ink-faint);
   padding: 12px 14px;
-  font-family: 'Kalam', cursive;
+  font-family: 'VT323', monospace;
   font-size: 16px;
   color: var(--ink-faint);
   cursor: pointer;
@@ -595,7 +593,7 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
 }
 
 .empty-note {
-  font-family: 'Kalam', cursive;
+  font-family: 'VT323', monospace;
   font-size: 15px;
   color: var(--ink-faint);
   text-align: center;
@@ -656,7 +654,7 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
 .field-label em {
   font-style: normal;
   color: var(--ink-faint);
-  font-family: 'Kalam', cursive;
+  font-family: 'VT323', monospace;
   font-size: 13px;
   letter-spacing: 0;
   margin-left: 6px;
@@ -665,7 +663,7 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
 
 .sketch-input {
   appearance: none;
-  font-family: 'Kalam', cursive;
+  font-family: 'VT323', monospace;
   font-size: 22px;
   background: transparent;
   border: 0;
@@ -693,7 +691,7 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  font-family: 'Kalam', cursive;
+  font-family: 'VT323', monospace;
   font-size: 15px;
   color: var(--ink);
   box-shadow: 2px 2px 0 var(--ink);
@@ -867,7 +865,7 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
 .foot-sign {
   margin-top: 6px;
   text-align: center;
-  font-family: 'Kalam', cursive;
+  font-family: 'VT323', monospace;
   font-size: 14px;
   color: var(--ink-soft);
   opacity: 0.5;
@@ -973,6 +971,7 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
   flex-direction: column;
   transform: translateX(-110%);
   transition: transform 250ms cubic-bezier(.4,0,.2,1);
+  padding-top: env(safe-area-inset-top);
 }
 .nav-drawer.is-open { transform: translateX(0); }
 
@@ -994,7 +993,7 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
   font-size: 18px; cursor: pointer;
   color: var(--ink); line-height: 1;
   padding: 2px 6px;
-  font-family: 'Kalam', cursive;
+  font-family: 'VT323', monospace;
 }
 .nav-close:hover { color: var(--accent); }
 
@@ -1007,7 +1006,7 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
   align-items: center;
   gap: 14px;
   width: 100%;
-  padding: 15px 20px;
+  padding: 18px 20px;
   background: none; border: none;
   cursor: pointer;
   text-align: left;
@@ -1023,7 +1022,7 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
 }
 .nav-icon { font-size: 20px; width: 28px; text-align: center; }
 .nav-labels { display: flex; flex-direction: column; }
-.nav-label { font-family: 'Press Start 2P', monospace; font-size: 9px; letter-spacing: 1px; }
+.nav-label { font-family: 'Press Start 2P', monospace; font-size: 12px; letter-spacing: 1px; }
 .nav-sub { font-family: 'VT323', monospace; font-size: 14px; color: var(--ink-soft); margin-top: 2px; }
 .nav-item.is-active .nav-sub { color: var(--accent); opacity: 0.7; }
 
