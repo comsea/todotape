@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef } from 'react';
+import { useMemo, useState } from 'react';
 import type { AppState, DayKey, DayMeta } from '../store/types';
 import { DAY_KEYS } from '../store/types';
 import { MiniTask } from '../components/MiniTask';
@@ -18,8 +18,7 @@ const MONTHS_SHORT = ['Janv.','Févr.','Mars','Avr.','Mai','Juin','Juil.','Août
 const DAY_NAMES = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
 
 export function WeekView({ state, weekDates, onToggle, onDelete, onAdd, onMove }: WeekViewProps) {
-  const [dragOver, setDragOver] = useState<DayKey | null>(null);
-  const dragTask = useRef<Task | null>(null);
+  const [selected, setSelected] = useState<Task | null>(null);
 
   const byDay = useMemo(() => {
     const m = Object.fromEntries(DAY_KEYS.map(k => [k, [] as Task[]])) as Record<DayKey, Task[]>;
@@ -32,23 +31,44 @@ export function WeekView({ state, weekDates, onToggle, onDelete, onAdd, onMove }
     return m;
   }, [state.tasks]);
 
+  function handleTaskClick(task: Task) {
+    if (selected?.id === task.id) {
+      setSelected(null); // désélectionne si on reclique
+    } else {
+      setSelected(task);
+    }
+  }
+
+  function handleDayClick(dayKey: DayKey) {
+    if (!selected) return;
+    if (selected.day !== dayKey) {
+      onMove(selected, dayKey);
+    }
+    setSelected(null);
+  }
+
   return (
     <>
+      {selected && (
+        <div style={{
+          textAlign: 'center',
+          padding: '6px',
+          marginBottom: '8px',
+          background: 'var(--accent)',
+          color: '#fff',
+          borderRadius: '4px',
+          fontSize: '13px',
+        }}>
+          ✦ «{selected.name}» sélectionnée — clique sur un jour pour la déplacer, ou reclique sur la tâche pour annuler
+        </div>
+      )}
       <div className="cassette-row">
         {weekDates.map((d, i) => (
           <div
             key={d.key}
-            className={`cassette ${d.isToday ? 'today' : ''} ${dragOver === d.key ? 'drag-over' : ''}`}
-            onDragOver={e => { e.preventDefault(); setDragOver(d.key); }}
-            onDragLeave={() => setDragOver(null)}
-            onDrop={e => {
-              e.preventDefault();
-              setDragOver(null);
-              if (dragTask.current && dragTask.current.day !== d.key) {
-                onMove(dragTask.current, d.key);
-              }
-              dragTask.current = null;
-            }}
+            className={`cassette ${d.isToday ? 'today' : ''} ${selected && selected.day !== d.key ? 'drop-target' : ''}`}
+            onClick={() => handleDayClick(d.key)}
+            style={selected && selected.day !== d.key ? { cursor: 'pointer', outline: '2px dashed var(--accent)' } : {}}
           >
             <div className="cassette-label">
               {DAY_NAMES[i]}
@@ -66,13 +86,14 @@ export function WeekView({ state, weekDates, onToggle, onDelete, onAdd, onMove }
                   weekDates={weekDates}
                   onToggle={onToggle}
                   onDelete={onDelete}
-                  onDragStart={() => { dragTask.current = t; }}
+                  onSelect={handleTaskClick}
+                  isSelected={selected?.id === t.id}
                 />
               ))}
               <button
                 type="button"
                 className="add-line"
-                onClick={() => onAdd(d.key)}
+                onClick={e => { e.stopPropagation(); onAdd(d.key); }}
               >
                 + ajouter…
               </button>
