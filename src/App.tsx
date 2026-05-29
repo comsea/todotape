@@ -11,6 +11,7 @@ import { ScoreView }     from './views/ScoreView';
 import { AddTaskModal }  from './components/AddTaskModal';
 import { TweaksPanel }   from './components/TweaksPanel';
 import { useServiceWorker } from './hooks/useServiceWorker';
+import { APP_VERSION } from './version';
 import type { Task } from './store/types';
 
 type PageId = 'tapes' | 'dashboard' | 'archives' | 'score';
@@ -326,7 +327,7 @@ export function App() {
       )}
 
       <p className="foot-note">♪ vos tâches sont sauvegardées en local · côté A = à faire, côté B = fait ♪</p>
-      <p className="foot-sign">By NervyFox</p>
+      <p className="foot-sign">By NervyFox <span className="foot-version">v{APP_VERSION}</span></p>
 
       {modal && (
         <AddTaskModal

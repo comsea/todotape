@@ -1520,3 +1520,12 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
 @media (max-width: 480px) {
   .pwa-update-banner { width: calc(100% - 32px); justify-content: space-between; }
 }
+
+.foot-version {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  color: var(--ink-soft);
+  opacity: 0.4;
+  margin-left: 8px;
+  vertical-align: middle;
+}
