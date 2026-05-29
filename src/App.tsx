@@ -260,28 +260,32 @@ export function App() {
 
       {/* ── toolbar ────────────────────────────────────────────────────── */}
       <div className="toolbar">
-        <div className="view-tabs big">
-          <button
-            className={`view-tab ${view === 'today' ? 'is-active' : ''}`}
-            onClick={() => setView('today')}
-            title="Ctrl+1"
-          >
-            AUJOURD'HUI
-          </button>
-          <button
-            className={`view-tab ${view === 'week' ? 'is-active' : ''}`}
-            onClick={() => setView('week')}
-            title="Ctrl+2"
-          >
-            SEMAINE S
-          </button>
-          <button
-            className={`view-tab ${view === 'next' ? 'is-active' : ''}`}
-            onClick={() => setView('next')}
-            title="Ctrl+3"
-          >
-            SEMAINE S+1
-          </button>
+        <div className="view-tabs-wrap">
+          <div className="view-tabs big view-tabs-top">
+            <button
+              className={`view-tab ${view === 'today' ? 'is-active' : ''}`}
+              onClick={() => setView('today')}
+              title="Ctrl+1"
+            >
+              AUJOURD'HUI
+            </button>
+          </div>
+          <div className="view-tabs big view-tabs-weeks">
+            <button
+              className={`view-tab ${view === 'week' ? 'is-active' : ''}`}
+              onClick={() => setView('week')}
+              title="Ctrl+2"
+            >
+              SEMAINE S
+            </button>
+            <button
+              className={`view-tab ${view === 'next' ? 'is-active' : ''}`}
+              onClick={() => setView('next')}
+              title="Ctrl+3"
+            >
+              SEMAINE S+1
+            </button>
+          </div>
         </div>
         <div className="toolbar-actions">
           <button
