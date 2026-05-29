@@ -90,7 +90,7 @@ export function GradeView({ xp }: Props) {
       {/* ── Tableau des grades ── */}
       <div className="grade-table">
         <div className="grade-table-title">TOUS LES GRADES</div>
-        {GRADES.map((g, i) => {
+        {GRADES.map((g) => {
           const unlocked = xp.total >= g.minXP;
           const isCurrent = g.name === current.name;
           return (
