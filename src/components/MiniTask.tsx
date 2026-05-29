@@ -25,15 +25,25 @@ export function MiniTask({ task, weekDates, onToggle, onDelete, onSelect, isSele
           className="mini-task-name"
           onClick={e => { e.stopPropagation(); onSelect?.(task); }}
           style={{ cursor: 'grab', flex: 1 }}
-          title="Cliquer pour sélectionner et déplacer"
         >
           {task.name}
         </span>
         <button
           type="button"
-          className="del-btn"
           onClick={e => { e.stopPropagation(); onDelete(task); }}
           aria-label="supprimer"
+          style={{
+            background: '#1c1b18',
+            color: '#ece2c9',
+            border: 'none',
+            borderRadius: '3px',
+            fontWeight: 'bold',
+            fontSize: '14px',
+            lineHeight: '1',
+            padding: '1px 5px',
+            cursor: 'pointer',
+            flexShrink: 0,
+          }}
         >
           ×
         </button>
