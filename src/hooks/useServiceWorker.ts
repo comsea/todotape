@@ -1,15 +1,9 @@
-import { useRegisterSW } from "virtual:pwa-register/react";
+import { useState } from 'react';
 
+// Stub utilisé pour le build Tauri (le vrai hook PWA est injecté par vite-plugin-pwa
+// uniquement dans le build web, via l'alias défini dans vite.config.ts)
 export function useServiceWorker() {
-  const {
-    needRefresh: [needRefresh],
-    updateServiceWorker,
-  } = useRegisterSW({
-    onRegistered(r) {
-      // Vérifie une mise à jour toutes les 60 secondes
-      if (r) setInterval(() => r.update(), 60 * 1000);
-    },
-  });
-
+  const [needRefresh] = useState(false);
+  const updateServiceWorker = async (_?: boolean) => {};
   return { needRefresh, updateServiceWorker };
 }

@@ -10,7 +10,7 @@ import { ArchivesView }  from './views/ArchivesView';
 import { ScoreView }     from './views/ScoreView';
 import { AddTaskModal }  from './components/AddTaskModal';
 import { TweaksPanel }   from './components/TweaksPanel';
-import { useServiceWorker } from './hooks/useServiceWorker';
+import { useServiceWorker } from '@/hooks/useServiceWorker';
 import { APP_VERSION } from './version';
 import type { Task } from './store/types';
 

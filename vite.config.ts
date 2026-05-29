@@ -1,30 +1,19 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
+import path from "path";
 
 const isTauri = process.env.TAURI_ENV_TARGET_TRIPLE !== undefined;
 
 export default defineConfig({
   plugins: [
     react(),
-    // Le plugin PWA est désactivé pour les builds Tauri (.msi)
     !isTauri && VitePWA({
-      registerType: "prompt",           // On demande confirmation avant de recharger
+      registerType: "prompt",
       injectRegister: "auto",
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
-        // Network first pour les requêtes de navigation → toujours la dernière version
         navigateFallback: "index.html",
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\./,
-            handler: "CacheFirst",
-            options: {
-              cacheName: "google-fonts",
-              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
-            },
-          },
-        ],
       },
       manifest: {
         name: "TO·DO·TAPE",
@@ -44,6 +33,15 @@ export default defineConfig({
       },
     }),
   ].filter(Boolean),
+  resolve: {
+    alias: {
+      // Pour le build PWA → vrai hook avec virtual:pwa-register
+      // Pour le build Tauri → stub sans dépendance PWA
+      '@/hooks/useServiceWorker': isTauri
+        ? path.resolve(__dirname, 'src/hooks/useServiceWorker.ts')
+        : path.resolve(__dirname, 'src/hooks/useServiceWorkerPWA.ts'),
+    },
+  },
   base: isTauri ? "/" : "/todotape/",
   clearScreen: false,
   server: {
