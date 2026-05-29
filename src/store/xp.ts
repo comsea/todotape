@@ -42,7 +42,7 @@ export async function loadXP(): Promise<XPState> {
   try {
     if (isTauri) {
       const { Store } = await import('@tauri-apps/plugin-store');
-      const store = await Store.load('todotape.json', { autoSave: false });
+      const store = await Store.load('todotape.json', { defaults: {}, autoSave: false });
       const x = await store.get<XPState>('xp');
       if (x) return x;
     } else {
@@ -57,7 +57,7 @@ export async function saveXP(xp: XPState): Promise<void> {
   try {
     if (isTauri) {
       const { Store } = await import('@tauri-apps/plugin-store');
-      const store = await Store.load('todotape.json', { autoSave: false });
+      const store = await Store.load('todotape.json', { defaults: {}, autoSave: false });
       await store.set('xp', xp);
       await store.save();
     } else {

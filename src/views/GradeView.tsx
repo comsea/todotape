@@ -6,7 +6,6 @@ interface Props { xp: XPState; }
 export function GradeView({ xp }: Props) {
   const current  = getGrade(xp.total);
   const next     = getNextGrade(xp.total);
-  const currentG = GRADES.find(g => g.name === current.name)!;
   const nextG    = next ?? null;
   const xpInGrade    = next ? xp.total - current.minXP : 0;
   const xpNeededFull = next ? next.minXP - current.minXP : 1;
@@ -94,7 +93,6 @@ export function GradeView({ xp }: Props) {
         {GRADES.map((g, i) => {
           const unlocked = xp.total >= g.minXP;
           const isCurrent = g.name === current.name;
-          const next = GRADES[i + 1];
           return (
             <div
               key={g.name}
