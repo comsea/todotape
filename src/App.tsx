@@ -12,9 +12,8 @@ import { AddTaskModal }  from './components/AddTaskModal';
 import { TweaksPanel }   from './components/TweaksPanel';
 import type { Task } from './store/types';
 
-type ViewId = 'today' | 'week' | 'next' | 'dashboard' | 'archives' | 'score';
-
-// ── date helpers ─────────────────────────────────────────────────────────────
+type PageId = 'tapes' | 'dashboard' | 'archives' | 'score';
+type TapeView = 'today' | 'week' | 'next';
 
 function computeWeek(offsetWeeks: number): DayMeta[] {
   const today = new Date();
@@ -49,48 +48,36 @@ async function fireNotification(body: string) {
   } catch (e) { console.error('Notification failed', e); }
 }
 
-// ── nav items ────────────────────────────────────────────────────────────────
-
-const NAV: Array<{ id: ViewId; icon: string; label: string; sub?: string }> = [
-  { id: 'today',     icon: '▶',  label: "AUJOURD'HUI" },
-  { id: 'week',      icon: '◼',  label: 'SEMAINE S' },
-  { id: 'next',      icon: '◻',  label: 'SEMAINE S+1' },
-  { id: 'dashboard', icon: '📊', label: 'TABLEAU DE BORD', sub: 'stats & streak' },
-  { id: 'archives',  icon: '📼', label: 'ARCHIVES',        sub: 'discographie' },
-  { id: 'score',     icon: '🏆', label: 'SCORE',           sub: 'productivité' },
+const NAV: Array<{ id: PageId; icon: string; label: string }> = [
+  { id: 'tapes',     icon: '📼', label: 'Mes tapes' },
+  { id: 'dashboard', icon: '📊', label: 'Tableau de bord' },
+  { id: 'archives',  icon: '🗃', label: 'Archives' },
+  { id: 'score',     icon: '🏆', label: 'Score' },
 ];
-
-// ── App ──────────────────────────────────────────────────────────────────────
 
 export function App() {
   const [loading, setLoading]     = useState(true);
   const [state, setState]         = useState<AppState>({ tasks: [], done: [] });
   const [settings, setSettings]   = useState<TweakSettings>(DEFAULT_SETTINGS);
-  const [view, setView]           = useState<ViewId>('week');
+  const [page, setPage]           = useState<PageId>('tapes');
+  const [tapeView, setTapeView]   = useState<TapeView>('week');
   const [menuOpen, setMenuOpen]   = useState(false);
   const [modal, setModal]         = useState<{ prefillDay?: DayKey; prefillWeek?: WeekKey } | null>(null);
   const [prefsOpen, setPrefsOpen] = useState(false);
 
   const currentWeekDates = useMemo(() => computeWeek(0), []);
   const nextWeekDates    = useMemo(() => computeWeek(1), []);
-  const [todayKey, setTodayKey]   = useState<DayKey>(getTodayKey);
+  const [todayKey, setTodayKey] = useState<DayKey>(getTodayKey);
 
   useEffect(() => {
-    const msUntilMidnight = () => {
-      const now = new Date(), mid = new Date(now);
-      mid.setHours(24, 0, 0, 0);
-      return mid.getTime() - now.getTime();
-    };
-    const t = setTimeout(() => setTodayKey(getTodayKey()), msUntilMidnight());
+    const ms = () => { const n = new Date(), m = new Date(n); m.setHours(24,0,0,0); return m.getTime()-n.getTime(); };
+    const t = setTimeout(() => setTodayKey(getTodayKey()), ms());
     return () => clearTimeout(t);
   }, [todayKey]);
 
   useEffect(() => {
     Promise.all([loadState(), loadSettings()]).then(([s, cfg]) => {
-      setState(s);
-      setSettings(cfg);
-      setView(cfg.default_view as ViewId);
-      setLoading(false);
+      setState(s); setSettings(cfg); setLoading(false);
     });
   }, []);
 
@@ -111,15 +98,12 @@ export function App() {
     const schedule = () => {
       const now = new Date();
       const [h, m] = settings.notification_time.split(':').map(Number);
-      const next = new Date(now);
-      next.setHours(h, m, 0, 0);
+      const next = new Date(now); next.setHours(h, m, 0, 0);
       if (next <= now) next.setDate(next.getDate() + 1);
       notifTimerRef.current = setTimeout(() => {
         const key = getTodayKey();
         const count = state.tasks.filter(t => t.day === key && t.week === 'current').length;
-        fireNotification(count === 0
-          ? "Aucune tâche prévue aujourd'hui — journée libre ♥"
-          : `${count} tâche${count > 1 ? 's' : ''} au programme aujourd'hui`);
+        fireNotification(count === 0 ? "Aucune tâche prévue aujourd'hui — journée libre ♥" : `${count} tâche${count > 1 ? 's' : ''} au programme aujourd'hui`);
         schedule();
       }, next.getTime() - now.getTime());
     };
@@ -128,31 +112,19 @@ export function App() {
   }, [settings.daily_notification, settings.notification_time, state.tasks]);
 
   useEffect(() => {
-    if (!('__TAURI_INTERNALS__' in window)) return;
-    let unlisten: (() => void) | null = null;
-    import('@tauri-apps/api/event').then(({ listen }) => {
-      listen<void>('menu:new-task', () => setModal({
-        prefillDay: view === 'today' ? todayKey : undefined,
-        prefillWeek: view === 'next' ? 'next' : 'current',
-      })).then(fn => { unlisten = fn; });
-    });
-    return () => { unlisten?.(); };
-  }, [view, todayKey]);
-
-  useEffect(() => {
     const h = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { setMenuOpen(false); setPrefsOpen(false); }
       if (modal) return;
-      if (e.key === 'Escape') { setMenuOpen(false); setPrefsOpen(false); return; }
-      if (e.ctrlKey && e.key === 'n') {
+      if (e.ctrlKey && e.key === 'n' && page === 'tapes') {
         e.preventDefault();
-        setModal({ prefillDay: view === 'today' ? todayKey : undefined, prefillWeek: view === 'next' ? 'next' : 'current' });
+        setModal({ prefillDay: tapeView === 'today' ? todayKey : undefined, prefillWeek: tapeView === 'next' ? 'next' : 'current' });
       }
     };
     window.addEventListener('keydown', h);
     return () => window.removeEventListener('keydown', h);
-  }, [modal, view, todayKey]);
+  }, [modal, page, tapeView, todayKey]);
 
-  // ── mutations ───────────────────────────────────────────────────────────────
+  // ── mutations ────────────────────────────────────────────────────────────
 
   const toggle = useCallback((task: Task) => {
     setState(s => {
@@ -170,7 +142,7 @@ export function App() {
 
   const del = useCallback((task: Task) => {
     setState(s => task.done
-      ? { ...s, done:  s.done.filter(x  => x.id !== task.id) }
+      ? { ...s, done:  s.done.filter(x => x.id !== task.id) }
       : { ...s, tasks: s.tasks.filter(x => x.id !== task.id) });
   }, []);
 
@@ -194,9 +166,8 @@ export function App() {
     setSettings(s => ({ ...s, [key]: value }));
   }, []);
 
-  const navigate = (id: ViewId) => { setView(id); setMenuOpen(false); };
-
-  // ── counters ────────────────────────────────────────────────────────────────
+  const navigate = (id: PageId) => { setPage(id); setMenuOpen(false); };
+  const goHome   = () => { setPage('tapes'); setMenuOpen(false); };
 
   const totals = {
     today:   state.tasks.filter(x => x.day === todayKey && x.week === 'current').length,
@@ -204,8 +175,6 @@ export function App() {
     next:    state.tasks.filter(x => x.week === 'next').length,
     done:    state.done.length,
   };
-
-  const showAddBtn = ['today','week','next'].includes(view);
 
   if (loading) return <div className="loading-screen">CHARGEMENT…</div>;
 
@@ -216,118 +185,122 @@ export function App() {
       data-paper-grid={settings.paper_grid ? '1' : '0'}
       data-density={settings.density}
     >
-      {/* ── burger menu overlay ─────────────────────────────────────────── */}
+      {/* overlay */}
       {menuOpen && <div className="nav-overlay" onClick={() => setMenuOpen(false)} />}
 
-      {/* ── side nav drawer ────────────────────────────────────────────── */}
+      {/* drawer */}
       <nav className={`nav-drawer ${menuOpen ? 'is-open' : ''}`}>
         <div className="nav-drawer-header">
           <span className="nav-drawer-title">TO·DO·TAPE</span>
-          <button className="nav-close" onClick={() => setMenuOpen(false)} aria-label="Fermer">✕</button>
+          <button className="nav-close" onClick={() => setMenuOpen(false)}>✕</button>
         </div>
         <ul className="nav-list">
           {NAV.map(item => (
             <li key={item.id}>
               <button
-                className={`nav-item ${view === item.id ? 'is-active' : ''}`}
+                className={`nav-item ${page === item.id ? 'is-active' : ''}`}
                 onClick={() => navigate(item.id)}
               >
                 <span className="nav-icon">{item.icon}</span>
-                <span className="nav-labels">
-                  <span className="nav-label">{item.label}</span>
-                  {item.sub && <span className="nav-sub">{item.sub}</span>}
-                </span>
+                <span className="nav-label">{item.label}</span>
               </button>
             </li>
           ))}
         </ul>
         <div className="nav-drawer-foot">
-          <button className="nav-prefs" onClick={() => { setMenuOpen(false); setPrefsOpen(true); }}>⚙ Préférences</button>
+          <button className="nav-prefs" onClick={() => { setMenuOpen(false); setPrefsOpen(true); }}>
+            ⚙ Préférences
+          </button>
         </div>
       </nav>
 
-      {/* ── header ────────────────────────────────────────────────────── */}
+      {/* ── header ── */}
       <header className="app-header">
         <div className="app-header-left">
           <button className="burger-btn" onClick={() => setMenuOpen(true)} aria-label="Menu">
             <span /><span /><span />
           </button>
-          <div className="app-brand">
+          <div className="app-brand" onClick={goHome} style={{ cursor: 'pointer' }} title="Retour à l'accueil">
             <span className="brand-tape">▶</span>
             <h1>TO·DO·TAPE</h1>
             <span className="brand-sub">retro groove edition</span>
           </div>
         </div>
-        <div className="app-counters">
-          <span><b>{totals.today}</b> aujourd'hui</span>
-          <span><b>{totals.current}</b> cette sem.</span>
-          <span><b>{totals.next}</b> S+1</span>
-          <span><b>{totals.done}</b> ✓</span>
-        </div>
+        {page === 'tapes' && (
+          <div className="app-counters">
+            <span><b>{totals.today}</b> aujourd'hui</span>
+            <span><b>{totals.current}</b> cette sem.</span>
+            <span><b>{totals.next}</b> S+1</span>
+            <span><b>{totals.done}</b> ✓</span>
+          </div>
+        )}
+        {page !== 'tapes' && (
+          <div className="page-title-pill">
+            {NAV.find(n => n.id === page)?.icon} {NAV.find(n => n.id === page)?.label}
+          </div>
+        )}
       </header>
 
-      {/* ── toolbar ───────────────────────────────────────────────────── */}
-      <div className="toolbar">
-        <div className="view-tabs-wrap">
-          <div className="view-tabs big view-tabs-top">
-            <button className={`view-tab ${view === 'today' ? 'is-active' : ''}`} onClick={() => setView('today')}>
-              AUJOURD'HUI
-            </button>
-          </div>
-          <div className="view-tabs big view-tabs-weeks">
-            <button className={`view-tab ${view === 'week' ? 'is-active' : ''}`} onClick={() => setView('week')}>
-              SEMAINE S
-            </button>
-            <button className={`view-tab ${view === 'next' ? 'is-active' : ''}`} onClick={() => setView('next')}>
-              SEMAINE S+1
-            </button>
-          </div>
-          <div className="view-tabs big">
-            <button className={`view-tab ${view === 'dashboard' ? 'is-active' : ''}`} onClick={() => setView('dashboard')}>
-              📊
-            </button>
-            <button className={`view-tab ${view === 'archives' ? 'is-active' : ''}`} onClick={() => setView('archives')}>
-              📼
-            </button>
-            <button className={`view-tab ${view === 'score' ? 'is-active' : ''}`} onClick={() => setView('score')}>
-              🏆
-            </button>
-          </div>
-        </div>
-        <div className="toolbar-actions">
-          <button className="btn-icon" onClick={() => setPrefsOpen(p => !p)} title="Préférences">⚙</button>
-          {showAddBtn && (
-            <button className="btn-sketch primary" onClick={() => openAdd(
-              view === 'today' ? todayKey : undefined,
-              view === 'next' ? 'next' : 'current',
-            )}>
-              + Nouvelle tâche
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* ── main canvas ───────────────────────────────────────────────── */}
-      <main className="canvas">
-        {view === 'today' && (
-          <TodayView state={state} weekDates={currentWeekDates} todayKey={todayKey} onToggle={toggle} onDelete={del} onAdd={openAdd} />
-        )}
-        {view === 'week' && (
-          <WeekView state={state} weekDates={currentWeekDates} weekKey="current" onToggle={toggle} onDelete={del} onAdd={day => openAdd(day, 'current')} onMove={moveTask} />
-        )}
-        {view === 'next' && (
-          <WeekView state={state} weekDates={nextWeekDates} weekKey="next" onToggle={toggle} onDelete={del} onAdd={day => openAdd(day, 'next')} onMove={moveTask} />
-        )}
-        {view === 'dashboard' && (
+      {/* ── pages secondaires (Dashboard / Archives / Score) ── */}
+      {page === 'dashboard' && (
+        <main className="canvas secondary-page">
           <DashboardView state={state} currentWeekDates={currentWeekDates} todayKey={todayKey} />
-        )}
-        {view === 'archives' && (
+        </main>
+      )}
+      {page === 'archives' && (
+        <main className="canvas secondary-page">
           <ArchivesView state={state} />
-        )}
-        {view === 'score' && (
+        </main>
+      )}
+      {page === 'score' && (
+        <main className="canvas secondary-page">
           <ScoreView state={state} currentWeekDates={currentWeekDates} todayKey={todayKey} />
-        )}
-      </main>
+        </main>
+      )}
+
+      {/* ── page principale Mes Tapes ── */}
+      {page === 'tapes' && (
+        <>
+          <div className="toolbar">
+            <div className="view-tabs-wrap">
+              <div className="view-tabs big view-tabs-top">
+                <button className={`view-tab ${tapeView === 'today' ? 'is-active' : ''}`} onClick={() => setTapeView('today')}>
+                  AUJOURD'HUI
+                </button>
+              </div>
+              <div className="view-tabs big view-tabs-weeks">
+                <button className={`view-tab ${tapeView === 'week' ? 'is-active' : ''}`} onClick={() => setTapeView('week')}>
+                  SEMAINE S
+                </button>
+                <button className={`view-tab ${tapeView === 'next' ? 'is-active' : ''}`} onClick={() => setTapeView('next')}>
+                  SEMAINE S+1
+                </button>
+              </div>
+            </div>
+            <div className="toolbar-actions">
+              <button className="btn-icon" onClick={() => setPrefsOpen(p => !p)} title="Préférences">⚙</button>
+              <button className="btn-sketch primary" onClick={() => openAdd(
+                tapeView === 'today' ? todayKey : undefined,
+                tapeView === 'next' ? 'next' : 'current',
+              )}>
+                + Nouvelle tâche
+              </button>
+            </div>
+          </div>
+
+          <main className="canvas">
+            {tapeView === 'today' && (
+              <TodayView state={state} weekDates={currentWeekDates} todayKey={todayKey} onToggle={toggle} onDelete={del} onAdd={openAdd} />
+            )}
+            {tapeView === 'week' && (
+              <WeekView state={state} weekDates={currentWeekDates} weekKey="current" onToggle={toggle} onDelete={del} onAdd={day => openAdd(day, 'current')} onMove={moveTask} />
+            )}
+            {tapeView === 'next' && (
+              <WeekView state={state} weekDates={nextWeekDates} weekKey="next" onToggle={toggle} onDelete={del} onAdd={day => openAdd(day, 'next')} onMove={moveTask} />
+            )}
+          </main>
+        </>
+      )}
 
       <p className="foot-note">♪ vos tâches sont sauvegardées en local · côté A = à faire, côté B = fait ♪</p>
       <p className="foot-sign">By NervyFox</p>
@@ -342,7 +315,6 @@ export function App() {
           onClose={() => setModal(null)}
         />
       )}
-
       {prefsOpen && (
         <TweaksPanel settings={settings} onChange={handleTweakChange} onReset={handleReset} onClose={() => setPrefsOpen(false)} />
       )}

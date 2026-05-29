@@ -1007,13 +1007,10 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
   align-items: center;
   gap: 14px;
   width: 100%;
-  padding: 13px 18px;
+  padding: 15px 20px;
   background: none; border: none;
   cursor: pointer;
   text-align: left;
-  font-family: 'VT323', monospace;
-  font-size: 18px;
-  letter-spacing: 1px;
   color: var(--ink);
   border-left: 4px solid transparent;
   transition: background 120ms, border-color 120ms;
@@ -1043,6 +1040,23 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
   transition: background 120ms;
 }
 .nav-prefs:hover { background: var(--paper-deep); }
+
+.page-title-pill {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--ink);
+  background: var(--paper-deep);
+  border: 2.5px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  padding: 8px 16px;
+}
+
+.secondary-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding-top: 8px;
+}
 
 /* ============================================================
    Dashboard view
