@@ -346,6 +346,7 @@ export function App() {
       <p className="foot-note">
         ♪ vos tâches sont sauvegardées en local · côté A = à faire, côté B = fait ♪
       </p>
+      <p className="foot-sign">By NervyFox</p>
 
       {/* ── modal ──────────────────────────────────────────────────────── */}
       {modal && (

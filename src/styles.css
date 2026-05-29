@@ -864,6 +864,14 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
   color: var(--ink-soft);
   letter-spacing: 1px;
 }
+.foot-sign {
+  margin-top: 6px;
+  text-align: center;
+  font-family: 'Kalam', cursive;
+  font-size: 14px;
+  color: var(--ink-soft);
+  opacity: 0.5;
+}
 
 /* ============================================================
    Loading overlay
