@@ -191,25 +191,33 @@ export function App() {
       {/* drawer */}
       <nav className={`nav-drawer ${menuOpen ? 'is-open' : ''}`}>
         <div className="nav-drawer-header">
-          <span className="nav-drawer-title">TO·DO·TAPE</span>
-          <button className="nav-close" onClick={() => setMenuOpen(false)}>✕</button>
+          <div className="nav-lcd">
+            <span className="nav-lcd-label">▶ NOW BROWSING</span>
+            <span className="nav-lcd-value">{NAV.find(n => n.id === page)?.label.toUpperCase() ?? 'MES TAPES'}</span>
+          </div>
+          <div className="nav-header-row">
+            <span className="nav-drawer-title">TO·DO·TAPE — MENU</span>
+            <button className="nav-close" onClick={() => setMenuOpen(false)}>✕</button>
+          </div>
         </div>
         <ul className="nav-list">
-          {NAV.map(item => (
+          {NAV.map((item, i) => (
             <li key={item.id}>
               <button
                 className={`nav-item ${page === item.id ? 'is-active' : ''}`}
                 onClick={() => navigate(item.id)}
               >
+                <span className="nav-led" />
                 <span className="nav-icon">{item.icon}</span>
                 <span className="nav-label">{item.label}</span>
+                <span className="nav-track">0{i + 1}</span>
               </button>
             </li>
           ))}
         </ul>
         <div className="nav-drawer-foot">
           <button className="nav-prefs" onClick={() => { setMenuOpen(false); setPrefsOpen(true); }}>
-            ⚙ Préférences
+            <span>⚙</span> Préférences
           </button>
         </div>
       </nav>
