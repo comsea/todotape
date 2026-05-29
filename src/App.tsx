@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import type { AppState, TweakSettings, DayKey, DayMeta, WeekKey } from './store/types';
 import { DAYS, DAY_KEYS, MONTHS_FR, DEFAULT_SETTINGS } from './store/types';
-import { loadState, saveState, loadSettings, saveSettings, clearAll } from './store/persistence';
+import { loadState, saveState, loadSettings, saveSettings, clearAll, maybeArchivePreviousWeek } from './store/persistence';
 import { makeSeedState } from './store/seed';
 import { WeekView }      from './views/WeekView';
 import { TodayView }     from './views/TodayView';
@@ -10,6 +10,7 @@ import { ArchivesView }  from './views/ArchivesView';
 import { ScoreView }     from './views/ScoreView';
 import { AddTaskModal }  from './components/AddTaskModal';
 import { TweaksPanel }   from './components/TweaksPanel';
+import { useServiceWorker } from './hooks/useServiceWorker';
 import type { Task } from './store/types';
 
 type PageId = 'tapes' | 'dashboard' | 'archives' | 'score';
@@ -78,6 +79,7 @@ export function App() {
   useEffect(() => {
     Promise.all([loadState(), loadSettings()]).then(([s, cfg]) => {
       setState(s); setSettings(cfg); setLoading(false);
+      maybeArchivePreviousWeek(s);
     });
   }, []);
 
@@ -166,6 +168,8 @@ export function App() {
     setSettings(s => ({ ...s, [key]: value }));
   }, []);
 
+  const { needRefresh, updateServiceWorker } = useServiceWorker();
+
   const navigate = (id: PageId) => { setPage(id); setMenuOpen(false); };
   const goHome   = () => { setPage('tapes'); setMenuOpen(false); };
 
@@ -187,6 +191,17 @@ export function App() {
     >
       {/* overlay */}
       {menuOpen && <div className="nav-overlay" onClick={() => setMenuOpen(false)} />}
+
+      {/* ── Bannière mise à jour PWA ── */}
+      {needRefresh && (
+        <div className="pwa-update-banner">
+          <span className="pwa-update-icon">📼</span>
+          <span className="pwa-update-text">Nouvelle version disponible !</span>
+          <button className="pwa-update-btn" onClick={() => updateServiceWorker(true)}>
+            ▶ RECHARGER
+          </button>
+        </div>
+      )}
 
       {/* drawer */}
       <nav className={`nav-drawer ${menuOpen ? 'is-open' : ''}`}>
