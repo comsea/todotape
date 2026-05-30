@@ -11,7 +11,7 @@ interface MiniTaskProps {
   onEdit: (task: Task) => void;
 }
 
-export function MiniTask({ task, currentWeekDates, nextWeekDates, onToggle, onDelete, onEdit }: MiniTaskProps) {
+export function MiniTask({ task, currentWeekDates, nextWeekDates, onToggle, onEdit }: MiniTaskProps) {
   const endDates = task.endWeek === 'next' ? nextWeekDates : currentWeekDates;
   const endDate  = task.end ? endDates.find(d => d.key === task.end) : null;
   const endLabel = endDate

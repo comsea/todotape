@@ -188,10 +188,6 @@ export function App() {
 
   const openAdd = useCallback((day?: DayKey, week?: WeekKey) => setModal({ prefillDay: day, prefillWeek: week }), []);
 
-  const moveTask = useCallback((task: Task, newDay: DayKey, newWeek: WeekKey) => {
-    setState(s => ({ ...s, tasks: s.tasks.map(t => t.id === task.id ? { ...t, day: newDay, week: newWeek } : t) }));
-  }, []);
-
   const editTask = useCallback((updated: Task) => {
     setState(s => ({ ...s, tasks: s.tasks.map(t => t.id === updated.id ? updated : t) }));
   }, []);
