@@ -15,6 +15,7 @@ import { AddTaskModal }  from './components/AddTaskModal';
 import { TweaksPanel }   from './components/TweaksPanel';
 import { useServiceWorker } from '@/hooks/useServiceWorker';
 import { APP_VERSION } from './version';
+import { SplashScreen } from './components/SplashScreen';
 import { IconTapes, IconGrade, IconDashboard, IconArchives } from './components/NavIcons';
 import type { Task } from './store/types';
 type PageId = 'tapes' | 'dashboard' | 'archives' | 'grade';
@@ -65,6 +66,7 @@ const NAV: Array<{ id: PageId; label: string; Icon: React.FC<{ active?: boolean;
 
 export function App() {
   const [loading, setLoading]     = useState(true);
+  const [splash, setSplash]       = useState(true);
   const [state, setState]         = useState<AppState>({ tasks: [], done: [] });
   const [settings, setSettings]   = useState<TweakSettings>(DEFAULT_SETTINGS);
   const [xp, setXP]               = useState<XPState>({ total: 0, lastStreakDate: null });
@@ -226,6 +228,7 @@ export function App() {
   const xpNeededFull = nextGrade ? nextGrade.minXP - grade.minXP : 1;
   const xpProgress   = nextGrade ? Math.round((xpInGrade / xpNeededFull) * 100) : 100;
 
+  if (splash) return <SplashScreen onDone={() => setSplash(false)} />;
   if (loading) return <div className="loading-screen">CHARGEMENT…</div>;
 
   return (
