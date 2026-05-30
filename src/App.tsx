@@ -14,6 +14,7 @@ import { AddTaskModal }  from './components/AddTaskModal';
 import { TweaksPanel }   from './components/TweaksPanel';
 import { useServiceWorker } from '@/hooks/useServiceWorker';
 import { APP_VERSION } from './version';
+import { IconTapes, IconGrade, IconDashboard, IconArchives } from './components/NavIcons';
 import type { Task } from './store/types';
 
 type PageId = 'tapes' | 'dashboard' | 'archives' | 'grade';
@@ -55,11 +56,11 @@ async function fireNotification(body: string) {
   } catch (e) { console.error('Notification failed', e); }
 }
 
-const NAV: Array<{ id: PageId; icon: string; label: string }> = [
-  { id: 'tapes',     icon: '📼', label: 'Mes tapes' },
-  { id: 'grade',     icon: '🏅', label: 'Grade & XP' },
-  { id: 'dashboard', icon: '📊', label: 'Tableau de bord' },
-  { id: 'archives',  icon: '🗃', label: 'Archives' },
+const NAV: Array<{ id: PageId; label: string; Icon: React.FC<{ active?: boolean; size?: number }> }> = [
+  { id: 'tapes',     label: 'Mes tapes',       Icon: IconTapes     },
+  { id: 'grade',     label: 'Grade & XP',       Icon: IconGrade     },
+  { id: 'dashboard', label: 'Tableau de bord',  Icon: IconDashboard },
+  { id: 'archives',  label: 'Archives',          Icon: IconArchives  },
 ];
 
 export function App() {
@@ -266,7 +267,7 @@ export function App() {
             <li key={item.id}>
               <button className={`nav-item ${page === item.id ? 'is-active' : ''}`} onClick={() => navigate(item.id)}>
                 <span className="nav-led" />
-                <span className="nav-icon">{item.icon}</span>
+                <span className="nav-icon"><item.Icon active={page === item.id} size={26} /></span>
                 <span className="nav-label">{item.label}</span>
                 <span className="nav-track">0{i + 1}</span>
               </button>
@@ -322,7 +323,7 @@ export function App() {
         </div>
         {page !== 'tapes' && (
           <div className="page-title-pill">
-            {NAV.find(n => n.id === page)?.icon} {NAV.find(n => n.id === page)?.label}
+            {NAV.find(n => n.id === page)?.label}
           </div>
         )}
       </header>
