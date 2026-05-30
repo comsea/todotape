@@ -34,6 +34,7 @@ export function BigTask({ task, currentWeekDates, nextWeekDates, onToggle, onDel
       <Checkbox checked={!!task.done} onChange={() => onToggle(task)} size="lg" />
       <span className="name">{task.name}</span>
       {endLabel && <span className="deadline">{endLabel}</span>}
+      {task.recurrence === 'weekly' && <span className="recur-badge">🔁</span>}
       <Bolts n={task.prio} />
       <button
         type="button"

@@ -59,6 +59,7 @@ export function MiniTask({ task, currentWeekDates, nextWeekDates, onToggle, onDe
       <div className="mini-task-meta">
         <Bolts n={task.prio} />
         {endLabel && <span className="deadline">{endLabel}</span>}
+        {task.recurrence === 'weekly' && <span className="recur-badge">🔁</span>}
       </div>
     </div>
   );

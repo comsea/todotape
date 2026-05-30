@@ -5,6 +5,7 @@ import { loadState, saveState, loadSettings, saveSettings, clearAll, maybeArchiv
 import { makeSeedState } from './store/seed';
 import { loadXP, saveXP, getGrade, getNextGrade, xpForTask, STREAK_BONUS } from './store/xp';
 import type { XPState } from './store/xp';
+import { applyRecurringTasks } from './store/recurrence';
 import { WeekView }      from './views/WeekView';
 import { TodayView }     from './views/TodayView';
 import { DashboardView } from './views/DashboardView';
@@ -87,7 +88,8 @@ export function App() {
 
   useEffect(() => {
     Promise.all([loadState(), loadSettings(), loadXP()]).then(([s, cfg, x]) => {
-      setState(s);
+      const sWithRecurring = applyRecurringTasks(s);
+      setState(sWithRecurring);
       setSettings(cfg);
       setXP(x);
       setLoading(false);
@@ -191,8 +193,8 @@ export function App() {
     setState(s => ({ ...s, tasks: s.tasks.map(t => t.id === task.id ? { ...t, day: newDay, week: newWeek } : t) }));
   }, []);
 
-  const saveNew = useCallback((data: { name: string; day: DayKey; week: WeekKey; end: DayKey | null; endWeek: WeekKey | null; prio: 1 | 2 | 3 }) => {
-    setState(s => ({ ...s, tasks: [...s.tasks, { ...data, id: Math.random().toString(36).slice(2, 9), done: false, recurrence: 'none' as const }] }));
+  const saveNew = useCallback((data: { name: string; day: DayKey; week: WeekKey; end: DayKey | null; endWeek: WeekKey | null; prio: 1 | 2 | 3; recurrence: 'none' | 'weekly'; recurId?: string }) => {
+    setState(s => ({ ...s, tasks: [...s.tasks, { ...data, id: Math.random().toString(36).slice(2, 9), done: false }] }));
     setModal(null);
   }, []);
 
