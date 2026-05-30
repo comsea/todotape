@@ -17,6 +17,7 @@ export function TaskEditModal({ task, currentWeekDates, nextWeekDates, todayKey,
   const [day, setDay]     = useState<DayKey>(task.day);
   const [week, setWeek]   = useState<WeekKey>(task.week);
   const [notes, setNotes] = useState(task.notes ?? '');
+  const [prio, setPrio]   = useState<1 | 2 | 3>(task.prio);
   const notesRef = useRef<HTMLTextAreaElement>(null);
 
   const todayIdx = DAY_KEYS.indexOf(todayKey);
@@ -37,7 +38,7 @@ export function TaskEditModal({ task, currentWeekDates, nextWeekDates, todayKey,
   };
 
   const handleSave = () => {
-    onSave({ ...task, day, week, notes: notes.trim() || undefined });
+    onSave({ ...task, day, week, prio, notes: notes.trim() || undefined });
     onClose();
   };
 
@@ -59,16 +60,42 @@ export function TaskEditModal({ task, currentWeekDates, nextWeekDates, todayKey,
 
         <div className="modal-body">
 
-          {/* Nom + méta */}
+          {/* Nom */}
           <div className="task-edit-header">
             <div className="task-edit-name">{task.name}</div>
-            <div className="task-edit-meta">
-              <Bolts n={task.prio} />
-              {task.recurrence === 'weekly' && <span className="recur-badge">🔁 récurrente</span>}
+            {task.recurrence === 'weekly' && <span className="recur-badge">🔁 récurrente</span>}
+          </div>
+
+          {/* 1. Notes */}
+          <div className="field">
+            <span className="field-label">NOTES <em>(optionnel)</em></span>
+            <textarea
+              ref={notesRef}
+              className="sketch-input task-edit-notes"
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+              placeholder="Ajoute des détails, un lien, une idée…"
+              rows={4}
+            />
+          </div>
+
+          {/* 2. Priorité */}
+          <div className="field">
+            <span className="field-label">PRIORITÉ</span>
+            <div className="prio-picker">
+              {([1, 2, 3] as const).map(n => (
+                <button key={n} type="button"
+                  className={`prio-btn ${prio === n ? 'on' : ''}`}
+                  onClick={() => setPrio(n)}
+                >
+                  <Bolts n={n} />
+                  <span className="prio-lbl">{(['tranquille', 'normal', 'urgent'] as const)[n - 1]}</span>
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Changer la semaine */}
+          {/* 3. Semaine */}
           <div className="field">
             <span className="field-label">SEMAINE</span>
             <div className="day-picker" style={{ gap: 8 }}>
@@ -85,7 +112,7 @@ export function TaskEditModal({ task, currentWeekDates, nextWeekDates, todayKey,
             </div>
           </div>
 
-          {/* Changer le jour */}
+          {/* 4. Jour */}
           <div className="field">
             <span className="field-label">DÉPLACER AU JOUR</span>
             <div className="day-picker">
@@ -103,19 +130,6 @@ export function TaskEditModal({ task, currentWeekDates, nextWeekDates, todayKey,
                 );
               })}
             </div>
-          </div>
-
-          {/* Notes */}
-          <div className="field">
-            <span className="field-label">NOTES <em>(optionnel)</em></span>
-            <textarea
-              ref={notesRef}
-              className="sketch-input task-edit-notes"
-              value={notes}
-              onChange={e => setNotes(e.target.value)}
-              placeholder="Ajoute des détails, un lien, une idée…"
-              rows={4}
-            />
           </div>
 
         </div>
