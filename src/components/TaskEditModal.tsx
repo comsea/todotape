@@ -50,10 +50,11 @@ export function TaskEditModal({ task, currentWeekDates, nextWeekDates, todayKey,
   return (
     <div className="modal-back" onClick={onClose}>
       <div className="modal cassette-big task-edit-modal" onClick={e => e.stopPropagation()}>
-        <div className="cassette-big-label">
-          <span className="spool" />
-          <span>★ MODIFIER LA TÂCHE ★</span>
-          <span className="spool" />
+
+        {/* Header centré avec croix */}
+        <div className="task-edit-topbar">
+          <span className="task-edit-title">★ MODIFIER LA TÂCHE ★</span>
+          <button className="task-edit-close" onClick={onClose} aria-label="Fermer">✕</button>
         </div>
 
         <div className="modal-body">
@@ -123,10 +124,7 @@ export function TaskEditModal({ task, currentWeekDates, nextWeekDates, todayKey,
           <button type="button" className="btn-sketch danger" onClick={handleDelete}>
             🗑 Supprimer
           </button>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button type="button" className="btn-sketch" onClick={onClose}>Annuler</button>
-            <button type="button" className="btn-sketch primary" onClick={handleSave}>▶ Enregistrer</button>
-          </div>
+          <button type="button" className="btn-sketch primary" onClick={handleSave}>▶ Enregistrer</button>
         </div>
       </div>
     </div>

@@ -1996,3 +1996,42 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
   opacity: 0.6;
   vertical-align: middle;
 }
+
+.task-edit-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 14px 48px 14px 48px;
+  border-bottom: 2.5px solid var(--ink);
+  background: var(--paper-deep);
+}
+.task-edit-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--ink);
+  text-align: center;
+}
+.task-edit-close {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: 1.5px solid var(--ink-soft);
+  color: var(--ink-soft);
+  width: 28px; height: 28px;
+  border-radius: 3px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'VT323', monospace;
+  transition: all 100ms;
+}
+.task-edit-close:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
