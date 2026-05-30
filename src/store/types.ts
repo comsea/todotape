@@ -11,8 +11,9 @@ export interface Task {
   endWeek: WeekKey | null;
   prio: 1 | 2 | 3;
   done: boolean;
-  recurrence: RecurrenceKey; // ← nouveau
-  recurId?: string;          // ← id partagé entre occurrences d'une même récurrence
+  recurrence: RecurrenceKey;
+  recurId?: string;
+  notes?: string;
 }
 
 export interface AppState {

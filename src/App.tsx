@@ -17,7 +17,6 @@ import { useServiceWorker } from '@/hooks/useServiceWorker';
 import { APP_VERSION } from './version';
 import { IconTapes, IconGrade, IconDashboard, IconArchives } from './components/NavIcons';
 import type { Task } from './store/types';
-
 type PageId = 'tapes' | 'dashboard' | 'archives' | 'grade';
 type TapeView = 'today' | 'week' | 'next';
 
@@ -191,6 +190,10 @@ export function App() {
 
   const moveTask = useCallback((task: Task, newDay: DayKey, newWeek: WeekKey) => {
     setState(s => ({ ...s, tasks: s.tasks.map(t => t.id === task.id ? { ...t, day: newDay, week: newWeek } : t) }));
+  }, []);
+
+  const editTask = useCallback((updated: Task) => {
+    setState(s => ({ ...s, tasks: s.tasks.map(t => t.id === updated.id ? updated : t) }));
   }, []);
 
   const saveNew = useCallback((data: { name: string; day: DayKey; week: WeekKey; end: DayKey | null; endWeek: WeekKey | null; prio: 1 | 2 | 3; recurrence: 'none' | 'weekly'; recurId?: string }) => {
@@ -376,9 +379,9 @@ export function App() {
           </div>
 
           <main className="canvas">
-            {tapeView === 'today' && <TodayView state={state} weekDates={currentWeekDates} todayKey={todayKey} onToggle={toggle} onDelete={del} onAdd={openAdd} />}
-            {tapeView === 'week'  && <WeekView state={state} weekDates={currentWeekDates} weekKey="current" onToggle={toggle} onDelete={del} onAdd={day => openAdd(day, 'current')} onMove={moveTask} />}
-            {tapeView === 'next'  && <WeekView state={state} weekDates={nextWeekDates} weekKey="next" onToggle={toggle} onDelete={del} onAdd={day => openAdd(day, 'next')} onMove={moveTask} />}
+            {tapeView === 'today' && <TodayView state={state} weekDates={currentWeekDates} nextWeekDates={nextWeekDates} todayKey={todayKey} onToggle={toggle} onDelete={del} onEdit={editTask} onAdd={openAdd} />}
+            {tapeView === 'week'  && <WeekView state={state} weekDates={currentWeekDates} weekKey="current" currentWeekDates={currentWeekDates} nextWeekDates={nextWeekDates} todayKey={todayKey} onToggle={toggle} onDelete={del} onEdit={editTask} onAdd={day => openAdd(day, 'current')} />}
+            {tapeView === 'next'  && <WeekView state={state} weekDates={nextWeekDates} weekKey="next" currentWeekDates={currentWeekDates} nextWeekDates={nextWeekDates} todayKey={todayKey} onToggle={toggle} onDelete={del} onEdit={editTask} onAdd={day => openAdd(day, 'next')} />}
           </main>
 
           {/* Compteurs déplacés en bas */}
