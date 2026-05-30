@@ -707,6 +707,12 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
 .day-btn.today.on { outline-color: var(--paper); }
 .day-btn.none { background: var(--paper-deep); }
 .day-btn.none.on { background: var(--ink); color: var(--accent); }
+.day-btn.disabled, .day-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+  pointer-events: none;
+  text-decoration: line-through;
+}
 .day-btn .dt {
   font-family: 'VT323', monospace;
   font-size: 13px;

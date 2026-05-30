@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import type { DayKey, DayMeta, WeekKey } from '../store/types';
+import { DAY_KEYS } from '../store/types';
 import { Bolts } from './Bolts';
 
 interface AddTaskModalProps {
@@ -12,15 +13,35 @@ interface AddTaskModalProps {
 }
 
 export function AddTaskModal({ defaults, currentWeekDates, nextWeekDates, todayKey, onSave, onClose }: AddTaskModalProps) {
-  const [name, setName]   = useState('');
-  const [week, setWeek]   = useState<WeekKey>(defaults.week);
-  const [day, setDay]     = useState<DayKey>(defaults.day ?? todayKey);
-  const [end, setEnd]     = useState<DayKey | null>(null);
+  const [name, setName]       = useState('');
+  const [week, setWeek]       = useState<WeekKey>(defaults.week);
+  const [day, setDay]         = useState<DayKey>(defaults.day ?? todayKey);
+  const [end, setEnd]         = useState<DayKey | null>(null);
   const [endWeek, setEndWeek] = useState<WeekKey | null>(null);
-  const [prio, setPrio]   = useState<1 | 2 | 3>(1);
+  const [prio, setPrio]       = useState<1 | 2 | 3>(1);
   const nameRef = useRef<HTMLInputElement>(null);
 
+  const todayIdx = DAY_KEYS.indexOf(todayKey);
+  const dayIdx   = DAY_KEYS.indexOf(day);
+
   const activeDates = week === 'current' ? currentWeekDates : nextWeekDates;
+
+  // Un jour est dans le passé si on est sur la semaine courante et son index < aujourd'hui
+  const isDayPast = (d: DayMeta, w: WeekKey) =>
+    w === 'current' && DAY_KEYS.indexOf(d.key) < todayIdx;
+
+  // Un jour de fin est invalide si :
+  // - il est dans le passé (semaine current)
+  // - il est avant le jour de début sur la même semaine
+  const isEndDisabled = (d: DayMeta, endWk: WeekKey) => {
+    if (isDayPast(d, endWk)) return true;
+    if (endWk === week) {
+      // même semaine que le début → doit être >= jour de début
+      return DAY_KEYS.indexOf(d.key) < dayIdx;
+    }
+    // S+1 est toujours valide comme fin si le début est en S
+    return false;
+  };
 
   useEffect(() => { nameRef.current?.focus(); }, []);
   useEffect(() => {
@@ -29,14 +50,26 @@ export function AddTaskModal({ defaults, currentWeekDates, nextWeekDates, todayK
     return () => window.removeEventListener('keydown', h);
   }, [onClose]);
 
-  // Quand on change de semaine, on remet le jour sur lun si le jour courant n'est plus cohérent
   const handleWeekChange = (w: WeekKey) => {
     setWeek(w);
+    // Si on revient sur S, s'assurer que le jour sélectionné n'est pas dans le passé
+    if (w === 'current' && DAY_KEYS.indexOf(day) < todayIdx) {
+      setDay(todayKey);
+    }
     // Réinitialise la date de fin si elle n'est plus valide
     if (end !== null && endWeek !== null) {
       if (w === 'next' && endWeek === 'current') {
-        setEnd(null);
-        setEndWeek(null);
+        setEnd(null); setEndWeek(null);
+      }
+    }
+  };
+
+  const handleDayChange = (d: DayKey) => {
+    setDay(d);
+    // Si la date de fin est maintenant avant le nouveau début → reset
+    if (end !== null && endWeek === week) {
+      if (DAY_KEYS.indexOf(end) < DAY_KEYS.indexOf(d)) {
+        setEnd(null); setEndWeek(null);
       }
     }
   };
@@ -47,7 +80,6 @@ export function AddTaskModal({ defaults, currentWeekDates, nextWeekDates, todayK
     onSave({ name: name.trim(), day, week, end, endWeek, prio });
   };
 
-  // Calcule les options de date de fin : jours de la semaine sélectionnée + (si S, aussi S+1)
   const endOptions: Array<{ dates: DayMeta[]; weekKey: WeekKey; label: string }> = week === 'current'
     ? [
         { dates: currentWeekDates, weekKey: 'current', label: 'Cette semaine' },
@@ -88,16 +120,9 @@ export function AddTaskModal({ defaults, currentWeekDates, nextWeekDates, todayK
             <span className="field-label">PRIORITÉ</span>
             <div className="prio-picker">
               {([1, 2, 3] as const).map(n => (
-                <button
-                  key={n}
-                  type="button"
-                  className={`prio-btn ${prio === n ? 'on' : ''}`}
-                  onClick={() => setPrio(n)}
-                >
+                <button key={n} type="button" className={`prio-btn ${prio === n ? 'on' : ''}`} onClick={() => setPrio(n)}>
                   <Bolts n={n} />
-                  <span className="prio-lbl">
-                    {(['tranquille', 'normal', 'urgent'] as const)[n - 1]}
-                  </span>
+                  <span className="prio-lbl">{(['tranquille', 'normal', 'urgent'] as const)[n - 1]}</span>
                 </button>
               ))}
             </div>
@@ -116,9 +141,7 @@ export function AddTaskModal({ defaults, currentWeekDates, nextWeekDates, todayK
                   onClick={() => handleWeekChange(w)}
                 >
                   <span className="d" style={{ fontSize: 11 }}>{w === 'current' ? 'S' : 'S+1'}</span>
-                  <span className="dt" style={{ fontSize: 10 }}>
-                    {w === 'current' ? 'cette sem.' : 'sem. proch.'}
-                  </span>
+                  <span className="dt" style={{ fontSize: 10 }}>{w === 'current' ? 'cette sem.' : 'sem. proch.'}</span>
                 </button>
               ))}
             </div>
@@ -128,17 +151,22 @@ export function AddTaskModal({ defaults, currentWeekDates, nextWeekDates, todayK
           <div className="field">
             <span className="field-label">JOUR <em>(obligatoire)</em></span>
             <div className="day-picker">
-              {activeDates.map(d => (
-                <button
-                  key={d.key}
-                  type="button"
-                  className={`day-btn ${day === d.key ? 'on' : ''} ${d.isToday ? 'today' : ''}`}
-                  onClick={() => setDay(d.key)}
-                >
-                  <span className="d">{d.short}</span>
-                  <span className="dt">{d.label.split(' ')[0]}</span>
-                </button>
-              ))}
+              {activeDates.map(d => {
+                const past = isDayPast(d, week);
+                return (
+                  <button
+                    key={d.key}
+                    type="button"
+                    className={`day-btn ${day === d.key ? 'on' : ''} ${d.isToday ? 'today' : ''} ${past ? 'disabled' : ''}`}
+                    onClick={() => !past && handleDayChange(d.key)}
+                    disabled={past}
+                    title={past ? 'Jour déjà passé' : ''}
+                  >
+                    <span className="d">{d.short}</span>
+                    <span className="dt">{d.label.split(' ')[0]}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -146,7 +174,6 @@ export function AddTaskModal({ defaults, currentWeekDates, nextWeekDates, todayK
           <div className="field">
             <span className="field-label">À FINIR AVANT <em>(optionnel)</em></span>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {/* Aucune */}
               <div className="day-picker end-picker">
                 <button
                   type="button"
@@ -164,17 +191,22 @@ export function AddTaskModal({ defaults, currentWeekDates, nextWeekDates, todayK
                     {group.label.toUpperCase()}
                   </div>
                   <div className="day-picker end-picker">
-                    {group.dates.map(d => (
-                      <button
-                        key={d.key}
-                        type="button"
-                        className={`day-btn ${end === d.key && endWeek === group.weekKey ? 'on' : ''}`}
-                        onClick={() => { setEnd(d.key); setEndWeek(group.weekKey); }}
-                      >
-                        <span className="d">{d.short}</span>
-                        <span className="dt">{d.label.split(' ')[0]}</span>
-                      </button>
-                    ))}
+                    {group.dates.map(d => {
+                      const disabled = isEndDisabled(d, group.weekKey);
+                      return (
+                        <button
+                          key={d.key}
+                          type="button"
+                          className={`day-btn ${end === d.key && endWeek === group.weekKey ? 'on' : ''} ${disabled ? 'disabled' : ''}`}
+                          onClick={() => !disabled && (setEnd(d.key), setEndWeek(group.weekKey))}
+                          disabled={disabled}
+                          title={disabled ? 'Date invalide' : ''}
+                        >
+                          <span className="d">{d.short}</span>
+                          <span className="dt">{d.label.split(' ')[0]}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               ))}
