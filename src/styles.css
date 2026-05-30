@@ -107,27 +107,14 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
 .app-brand {
   display: flex;
   align-items: center;
-  gap: 14px;
 }
-.app-brand h1 {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 24px;
-  letter-spacing: 1px;
-  margin: 0;
+.brand-svg {
+  height: 68px;
+  width: auto;
+  display: block;
+  transition: opacity 150ms;
 }
-.brand-tape {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px; height: 36px;
-  background: var(--accent);
-  color: var(--paper);
-  border: 2.5px solid var(--ink);
-  box-shadow: 3px 3px 0 var(--ink);
-  font-family: 'Press Start 2P', monospace;
-  font-size: 12px;
-  transform: rotate(-3deg);
-}
+.app-brand:hover .brand-svg { opacity: 0.85; }
 
 /* ------- toolbar ------- */
 .toolbar {

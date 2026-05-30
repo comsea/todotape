@@ -286,9 +286,38 @@ export function App() {
           <button className="burger-btn" onClick={() => setMenuOpen(true)} aria-label="Menu">
             <span /><span /><span />
           </button>
-          <div className="app-brand" onClick={goHome} style={{ cursor: 'pointer' }}>
-            <span className="brand-tape">▶</span>
-            <h1>TO·DO·TAPE</h1>
+          <div className="app-brand" onClick={goHome} style={{ cursor: 'pointer' }} title="Accueil">
+            <svg className="brand-svg" viewBox="0 0 210 68" xmlns="http://www.w3.org/2000/svg">
+              {/* Boîtier cassette */}
+              <rect x="1" y="1" width="140" height="52" rx="6" fill="#2a2724" stroke="#ff2d8a" strokeWidth="1.5"/>
+              <rect x="1" y="1" width="140" height="10" rx="6" fill="#333028"/>
+              <rect x="1" y="7" width="140" height="4" fill="#333028"/>
+              {/* Fenêtre */}
+              <rect x="16" y="14" width="108" height="32" rx="4" fill="#111" stroke="#3a3835" strokeWidth="1"/>
+              {/* Bobine gauche */}
+              <circle cx="46" cy="30" r="12" fill="#1e1d1a" stroke="#ff2d8a" strokeWidth="1.5"/>
+              <circle cx="46" cy="30" r="5" fill="#111" stroke="#3a3835" strokeWidth="1"/>
+              <line x1="46" y1="19" x2="46" y2="25" stroke="#ff2d8a" strokeWidth="1"/>
+              <line x1="46" y1="35" x2="46" y2="41" stroke="#ff2d8a" strokeWidth="1"/>
+              <line x1="35" y1="30" x2="41" y2="30" stroke="#ff2d8a" strokeWidth="1"/>
+              <line x1="51" y1="30" x2="57" y2="30" stroke="#ff2d8a" strokeWidth="1"/>
+              {/* Bobine droite */}
+              <circle cx="96" cy="30" r="12" fill="#1e1d1a" stroke="#ff2d8a" strokeWidth="1.5"/>
+              <circle cx="96" cy="30" r="5" fill="#111" stroke="#3a3835" strokeWidth="1"/>
+              <line x1="96" y1="19" x2="96" y2="25" stroke="#ff2d8a" strokeWidth="1"/>
+              <line x1="96" y1="35" x2="96" y2="41" stroke="#ff2d8a" strokeWidth="1"/>
+              <line x1="85" y1="30" x2="91" y2="30" stroke="#ff2d8a" strokeWidth="1"/>
+              <line x1="101" y1="30" x2="107" y2="30" stroke="#ff2d8a" strokeWidth="1"/>
+              {/* Ruban */}
+              <path d="M 58 30 Q 71 38 84 30" fill="none" stroke="#8B7355" strokeWidth="1.5"/>
+              {/* Trous */}
+              <circle cx="10" cy="8" r="3" fill="#111" stroke="#3a3835" strokeWidth="0.8"/>
+              <circle cx="132" cy="8" r="3" fill="#111" stroke="#3a3835" strokeWidth="0.8"/>
+              <circle cx="10" cy="46" r="3" fill="#111" stroke="#3a3835" strokeWidth="0.8"/>
+              <circle cx="132" cy="46" r="3" fill="#111" stroke="#3a3835" strokeWidth="0.8"/>
+              {/* TODOTAPE texte */}
+              <text x="71" y="64" textAnchor="middle" fontFamily="Boogaloo, cursive" fontSize="22" fontWeight="700" fill="#ff2d8a" letterSpacing="1">TODOTAPE</text>
+            </svg>
           </div>
         </div>
         {page !== 'tapes' && (
