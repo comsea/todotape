@@ -1,9 +1,8 @@
-import { useRef, useCallback } from 'react';
+import { useRef } from 'react';
 import type { TweakSettings } from '../store/types';
 import type { XPState } from '../store/xp';
-import { getGrade, getNextGrade, GRADES } from '../store/xp';
+import { getGrade, getNextGrade } from '../store/xp';
 import { APP_VERSION } from '../version';
-import { clearAll } from '../store/persistence';
 import { saveArchives } from '../store/persistence';
 
 interface Props {
@@ -23,11 +22,6 @@ const ACCENT_OPTIONS = [
   { value: '#a85bff', label: 'Violet' },
   { value: '#f0c030', label: 'Jaune' },
   { value: '#30d080', label: 'Vert' },
-];
-
-const THEMES = [
-  { value: 'paper', label: 'Papier' },
-  { value: 'dark',  label: 'Sombre' },
 ];
 
 function Section({ icon, title }: { icon: string; title: string }) {

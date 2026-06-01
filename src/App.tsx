@@ -11,8 +11,7 @@ import { TodayView }     from './views/TodayView';
 import { DashboardView } from './views/DashboardView';
 import { ArchivesView }  from './views/ArchivesView';
 import { GradeView }     from './views/GradeView';
-import { SettingsView }  from './views/SettingsView';
-import { AddTaskModal }  from './components/AddTaskModal';
+import { SettingsView }  from './views/SettingsView';import { AddTaskModal }  from './components/AddTaskModal';
 import { TweaksPanel }   from './components/TweaksPanel';
 import { useServiceWorker } from '@/hooks/useServiceWorker';
 import { APP_VERSION } from './version';
@@ -374,6 +373,9 @@ export function App() {
       )}
       {page === 'dashboard' && (
         <main className="canvas secondary-page"><DashboardView state={state} currentWeekDates={currentWeekDates} todayKey={todayKey} /></main>
+      )}
+      {page === 'archives' && (
+        <main className="canvas secondary-page"><ArchivesView state={state} /></main>
       )}
       {page === 'settings' && (
         <main className="canvas secondary-page">
