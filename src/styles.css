@@ -2398,7 +2398,7 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
 }
 
 /* ============================================================
-   Music Player — Floating Pill
+   Music Player — Pill + Sheet
    ============================================================ */
 
 .music-player {
@@ -2412,216 +2412,135 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* ── Pill principale ── */
-.mp-pill {
+/* ── Overlay ── */
+.mp-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10,10,8,0.5);
+  z-index: 78;
+  backdrop-filter: blur(2px);
+}
+
+/* ── Sheet ── */
+.mp-sheet {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0; right: 0;
   background: #1a1917;
   border: 2.5px solid #ff2d8a;
-  border-radius: 50px;
-  box-shadow: 4px 4px 0 #ff2d8a;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -8px 32px rgba(0,0,0,0.5);
+  z-index: 79;
+  animation: sheet-up 250ms cubic-bezier(.2,1.2,.4,1);
+}
+@keyframes sheet-up {
+  from { transform: translateY(30px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.mp-sheet-handle {
   display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 10px 14px 10px 18px;
-  cursor: default;
-}
-
-.mp-logo {
-  font-family: 'Boogaloo', cursive;
-  font-size: 20px;
-  font-weight: 700;
-  color: #ff2d8a;
-  letter-spacing: 1px;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.mp-sep {
-  width: 1.5px;
-  height: 26px;
-  background: #2a2724;
-  flex-shrink: 0;
-}
-
-.mp-center {
-  flex: 1;
-  min-width: 0;
+  justify-content: center;
+  padding: 10px 0 6px;
   cursor: pointer;
 }
-.mp-center:hover .mp-track-title { color: #ece2c9; }
-
-.mp-track-title {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 7px;
-  color: #8a8075;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: color 100ms;
-  line-height: 1.4;
+.mp-sheet-bar {
+  width: 40px; height: 4px;
+  background: #2a2724;
+  border-radius: 2px;
 }
-.music-player.is-playing .mp-track-title { color: #ece2c9; }
+.mp-sheet-handle:hover .mp-sheet-bar { background: #ff2d8a; }
 
-.mp-track-sub {
+.mp-sheet-now {
+  padding: 12px 20px 14px;
+  text-align: center;
+  border-bottom: 1px solid #1e1d1a;
+}
+.mp-sheet-track {
+  font-family: 'Boogaloo', cursive;
+  font-size: 32px;
+  font-weight: 700;
+  color: #ff2d8a;
+  line-height: 1.1;
+}
+.mp-sheet-artist {
+  font-family: 'VT323', monospace;
+  font-size: 20px;
+  color: #5a5650;
+  margin-top: 2px;
+}
+
+.mp-sheet-prog {
+  height: 5px;
+  background: #1e1d1a;
+  margin: 12px 20px 0;
+  cursor: pointer;
+  overflow: hidden;
+}
+.mp-sheet-prog:hover { opacity: 0.8; }
+.mp-sheet-fill {
+  height: 100%;
+  background: #ff2d8a;
+  transition: width 0.1s linear;
+}
+.mp-sheet-times {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 20px;
   font-family: 'VT323', monospace;
   font-size: 14px;
   color: #3a3835;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.mp-prog-line {
-  height: 2px;
-  background: #1e1d1a;
-  border-radius: 1px;
-  margin-top: 5px;
-  overflow: hidden;
-}
-.mp-prog-fill {
-  height: 100%;
-  background: #ff2d8a;
-  border-radius: 1px;
-  transition: width 0.1s linear;
-}
-
-/* Dot pulsant */
-.mp-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: #2a2724;
-  border: 1.5px solid #3a3835;
-  flex-shrink: 0;
-  transition: all 200ms;
-}
-.music-player.is-playing .mp-dot {
-  background: #ff2d8a;
-  border-color: #ff2d8a;
-  box-shadow: 0 0 6px #ff2d8a;
-  animation: dot-pulse 1.2s ease-in-out infinite;
-}
-
-/* Contrôles */
-.mp-controls {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-}
-.mp-btn {
-  background: none;
-  border: none;
-  color: #5a5650;
-  font-family: 'Press Start 2P', monospace;
-  font-size: 8px;
-  cursor: pointer;
-  padding: 4px 6px;
-  transition: color 80ms;
-  line-height: 1;
-}
-.mp-btn:hover { color: #ece2c9; }
-.mp-btn-play {
-  background: #ff2d8a;
-  border-radius: 50%;
-  width: 32px; height: 32px;
-  color: #1a1917;
+.mp-sheet-ctrls {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
-  padding: 0;
-  transition: background 80ms;
+  gap: 10px;
+  padding: 10px 20px;
 }
-.mp-btn-play:hover { background: #e01a70; color: #1a1917; }
-
-/* ── Panel étendu (tracklist + volume) ── */
-.mp-panel {
-  background: #1a1917;
-  border: 2.5px solid #ff2d8a;
-  border-bottom: none;
-  border-radius: 16px 16px 0 0;
-  margin: 0 8px;
-  padding: 14px 16px 10px;
-  animation: panel-up 200ms ease;
+.mp-sheet-btn {
+  background: none;
+  border: 1.5px solid #2a2724;
+  color: #8a8075;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  padding: 7px 12px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all 80ms;
+  line-height: 1;
 }
-@keyframes panel-up {
-  from { opacity:0; transform:translateY(10px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-
-.mp-viz {
-  display: flex;
-  align-items: flex-end;
-  gap: 2px;
-  height: 28px;
-  background: #0a0908;
-  padding: 4px 6px;
-  border: 1px solid #1e1d1a;
-  margin-bottom: 10px;
-}
-.mp-viz-bar {
-  flex: 1;
+.mp-sheet-btn:hover { border-color: #ff2d8a; color: #ff2d8a; }
+.mp-sheet-play {
   background: #ff2d8a;
-  border-radius: 1px 1px 0 0;
-  min-height: 2px;
-  transition: height 0.08s ease;
+  border-color: #ff2d8a;
+  color: #1a1917;
+  font-size: 11px;
+  padding: 9px 20px;
+}
+.mp-sheet-play:hover { background: #e01a70; color: #1a1917; }
+
+/* Bouton répétition */
+.mp-repeat-btn { font-size: 14px; border-style: dashed; }
+.mp-repeat-btn.active {
+  border-style: solid;
+  border-color: #ff2d8a;
+  color: #ff2d8a;
 }
 
-.mp-tracklist {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  margin-bottom: 10px;
-}
-.mp-track-item {
+/* Volume */
+.mp-sheet-vol {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 7px 10px;
-  background: none;
-  border: 1px solid transparent;
-  cursor: pointer;
-  text-align: left;
-  width: 100%;
-  transition: all 80ms;
-  border-radius: 3px;
+  padding: 0 20px 12px;
 }
-.mp-track-item:hover { background: #111009; border-color: #2a2724; }
-.mp-track-item.active { border-color: #ff2d8a; background: #111009; }
-.mp-track-num {
+.mp-vol-icon {
   font-family: 'VT323', monospace;
-  font-size: 18px;
-  color: #2a2724;
-  min-width: 22px;
-}
-.mp-track-item.active .mp-track-num { color: #ff2d8a; }
-.mp-track-name-list {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 7px;
-  color: #5a5650;
-  flex: 1;
-  letter-spacing: 0.5px;
-}
-.mp-track-item.active .mp-track-name-list { color: #ece2c9; }
-.mp-track-artist-list {
-  font-family: 'VT323', monospace;
-  font-size: 14px;
+  font-size: 16px;
   color: #3a3835;
 }
-.mp-playing-dot {
-  font-size: 8px;
-  color: #ff2d8a;
-  animation: dot-pulse 1s ease-in-out infinite;
-}
-
-.mp-vol-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding-top: 8px;
-  border-top: 1px solid #1e1d1a;
-}
-.mp-vol-icon { font-family:'VT323',monospace; font-size:16px; color:#3a3835; }
 .mp-vol-slider {
   flex: 1;
   -webkit-appearance: none;
@@ -2637,12 +2556,145 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
   cursor: pointer;
   border-radius: 50%;
 }
-.mp-vol-val { font-family:'VT323',monospace; font-size:13px; color:#3a3835; min-width:22px; text-align:right; }
+
+/* Liste des pistes */
+.mp-sheet-next-title {
+  padding: 8px 20px 4px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  color: #3a3835;
+  letter-spacing: 1px;
+  border-top: 1px solid #1e1d1a;
+}
+.mp-sheet-list {
+  max-height: 160px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #ff2d8a #1e1d1a;
+  padding-bottom: 4px;
+}
+.mp-sheet-list::-webkit-scrollbar { width: 3px; }
+.mp-sheet-list::-webkit-scrollbar-track { background: #1e1d1a; }
+.mp-sheet-list::-webkit-scrollbar-thumb { background: #ff2d8a; border-radius: 2px; }
+
+.mp-sheet-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 20px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid #111009;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: background 80ms;
+}
+.mp-sheet-item:hover { background: #111009; }
+.mp-sheet-item.active { border-left: 3px solid #ff2d8a; }
+.msi-num {
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  color: #2a2724;
+  min-width: 24px;
+}
+.mp-sheet-item.active .msi-num { color: #ff2d8a; }
+.msi-info { flex: 1; min-width: 0; }
+.msi-name {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  color: #5a5650;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mp-sheet-item.active .msi-name { color: #ece2c9; }
+.msi-artist {
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  color: #3a3835;
+}
+.msi-play {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  color: #ff2d8a;
+  flex-shrink: 0;
+}
+
+/* ── Pill ── */
+.mp-pill {
+  background: #1a1917;
+  border: 2.5px solid #ff2d8a;
+  border-radius: 50px;
+  box-shadow: 4px 4px 0 #ff2d8a;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px 10px 18px;
+  position: relative;
+  z-index: 80;
+}
+.mp-logo {
+  font-family: 'Boogaloo', cursive;
+  font-size: 20px;
+  font-weight: 700;
+  color: #ff2d8a;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.mp-sep { width: 1.5px; height: 24px; background: #2a2724; flex-shrink: 0; }
+.mp-center { flex: 1; min-width: 0; cursor: pointer; }
+.mp-track-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  color: #8a8075;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 100ms;
+}
+.music-player.is-playing .mp-track-title { color: #ece2c9; }
+.mp-track-sub {
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  color: #3a3835;
+}
+.mp-prog-line { height: 2px; background: #1e1d1a; border-radius: 1px; margin-top: 5px; overflow: hidden; }
+.mp-prog-fill { height: 100%; background: #ff2d8a; border-radius: 1px; transition: width 0.1s linear; }
+.mp-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #2a2724;
+  border: 1.5px solid #3a3835;
+  flex-shrink: 0;
+  transition: all 200ms;
+}
+.music-player.is-playing .mp-dot {
+  background: #ff2d8a;
+  border-color: #ff2d8a;
+  box-shadow: 0 0 6px #ff2d8a;
+  animation: dot-pulse 1.2s ease-in-out infinite;
+}
+.mp-controls { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.mp-btn {
+  background: none; border: none; color: #5a5650;
+  font-family: 'Press Start 2P', monospace; font-size: 8px;
+  cursor: pointer; padding: 4px 5px; transition: color 80ms; line-height: 1;
+}
+.mp-btn:hover { color: #ece2c9; }
+.mp-btn-play {
+  background: #ff2d8a; border-radius: 50%;
+  width: 30px; height: 30px; color: #1a1917;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; padding: 0;
+}
+.mp-btn-play:hover { background: #e01a70; color: #1a1917; }
 
 @keyframes dot-pulse {
   0%,100% { box-shadow: 0 0 4px #ff2d8a; }
   50%      { box-shadow: 0 0 10px #ff2d8a, 0 0 20px rgba(255,45,138,0.3); }
 }
 
-/* Décaler le contenu */
 .page { padding-bottom: 90px !important; }
