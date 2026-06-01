@@ -24,7 +24,6 @@ export function MusicPlayer() {
   const [progress, setProgress]     = useState(0);
   const [duration, setDuration]     = useState(0);
   const [elapsed, setElapsed]       = useState(0);
-  const [bars, setBars]             = useState<number[]>(Array(16).fill(2));
   const [repeat, setRepeat]         = useState<RepeatMode>('none');
 
   const audioRef   = useRef<HTMLAudioElement>(null);
@@ -94,10 +93,6 @@ export function MusicPlayer() {
   // Visualiseur
   useEffect(() => {
     const animate = () => {
-      setBars(playingRef.current
-        ? Array(16).fill(0).map(() => Math.random() * 22 + 4)
-        : Array(16).fill(2)
-      );
       animRef.current = requestAnimationFrame(animate);
     };
     animRef.current = requestAnimationFrame(animate);
