@@ -299,21 +299,17 @@ export function App() {
       {/* ── Drawer ── */}
       <nav className={`nav-drawer ${menuOpen ? 'is-open' : ''}`}>
         <div className="nav-drawer-header">
-          <div className="nav-lcd">
-            <span className="nav-lcd-label">▶ NOW BROWSING</span>
-            <span className="nav-lcd-value">{NAV.find(n => n.id === page)?.label.toUpperCase() ?? 'MES TAPES'}</span>
-          </div>
+          <span className="nav-drawer-title">TODOTAPE</span>
+          <button className="nav-close" onClick={() => setMenuOpen(false)}>✕</button>
           <div className="nav-header-row">
-            <span className="nav-drawer-title">TO·DO·TAPE — MENU</span>
-            <button className="nav-close" onClick={() => setMenuOpen(false)}>✕</button>
+            <span>▶ RETRO GROOVE</span>
           </div>
         </div>
         <ul className="nav-list">
           {NAV.map((item, i) => (
             <li key={item.id}>
               <button className={`nav-item ${page === item.id ? 'is-active' : ''}`} onClick={() => navigate(item.id)}>
-                <span className="nav-led" />
-                <span className="nav-icon"><item.Icon active={page === item.id} size={26} /></span>
+                <span className="nav-icon"><item.Icon active={page === item.id} size={22} /></span>
                 <span className="nav-label">{item.label}</span>
                 <span className="nav-track">0{i + 1}</span>
               </button>
@@ -321,8 +317,8 @@ export function App() {
           ))}
         </ul>
         <div className="nav-drawer-foot">
-          <div style={{ padding: '10px 16px', fontFamily: 'VT323, monospace', fontSize: '14px', color: '#3a3835', textAlign: 'center', letterSpacing: '1px' }}>
-            TODOTAPE v{APP_VERSION} · NervyFox
+          <div style={{ fontFamily: 'VT323, monospace', fontSize: '14px', color: '#2a2724', textAlign: 'center', letterSpacing: '1px' }}>
+            v{APP_VERSION} · NervyFox
           </div>
         </div>
       </nav>

@@ -909,41 +909,39 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
   gap: 5px;
   width: 36px; height: 36px;
   padding: 6px;
-  background: #2a2825;
-  border: 2px solid #1a1815;
-  box-shadow: 2px 2px 0 #1a1815, inset 0 1px 0 rgba(255,255,255,0.08);
+  background: var(--paper-deep);
+  border: 2.5px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
   cursor: pointer;
   flex-shrink: 0;
   border-radius: 3px;
+  transition: all 80ms;
 }
 .burger-btn span {
   display: block;
-  height: 2px;
-  background: #c8b89a;
+  height: 2.5px;
+  background: var(--ink);
   border-radius: 1px;
 }
-.burger-btn:hover { background: #333028; }
-.burger-btn:active { box-shadow: inset 2px 2px 4px rgba(0,0,0,0.5); transform: translate(1px,1px); }
+.burger-btn:hover { background: var(--accent-soft); }
+.burger-btn:active { box-shadow: inset 2px 2px 4px rgba(0,0,0,0.2); transform: translate(1px,1px); }
 
 .nav-overlay {
   position: fixed; inset: 0;
-  background: rgba(10, 10, 8, 0.6);
+  background: rgba(10, 10, 8, 0.5);
   z-index: 90;
-  backdrop-filter: blur(3px);
+  backdrop-filter: blur(2px);
 }
 
-/* ── Boîtier lecteur cassette ── */
+/* ── Drawer tracklist vinyle ── */
 .nav-drawer {
   position: fixed;
   top: 0; left: 0;
   height: 100%;
   width: 300px;
-  background: #1e1d1a;
-  background-image:
-    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.015) 2px, rgba(255,255,255,0.015) 4px),
-    repeating-linear-gradient(90deg, transparent, transparent 4px, rgba(255,255,255,0.01) 4px, rgba(255,255,255,0.01) 8px);
-  border-right: 4px solid #0d0c0a;
-  box-shadow: 6px 0 24px rgba(0,0,0,0.7), inset -1px 0 0 rgba(255,255,255,0.05);
+  background: #111009;
+  border-right: 3px solid var(--accent);
+  box-shadow: 8px 0 32px rgba(0,0,0,0.6);
   z-index: 100;
   display: flex;
   flex-direction: column;
@@ -953,190 +951,137 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
 }
 .nav-drawer.is-open { transform: translateX(0); }
 
-/* Vis de boîtier aux coins */
-.nav-drawer::before,
-.nav-drawer::after {
-  content: '✦';
-  position: absolute;
-  font-size: 8px;
-  color: #3a3835;
-  pointer-events: none;
-}
-.nav-drawer::before { top: calc(env(safe-area-inset-top) + 10px); left: 10px; }
-.nav-drawer::after  { bottom: 10px; left: 10px; }
-
-/* ── Écran LCD en haut ── */
+/* ── Header : logo + fermer ── */
 .nav-drawer-header {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 18px 18px 14px;
-  border-bottom: 2px solid #0d0c0a;
-  box-shadow: 0 2px 0 rgba(255,255,255,0.04);
-  background: #181715;
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid #1e1d1a;
+  position: relative;
 }
 
-.nav-lcd {
-  background: #0a1a0e;
-  border: 2px solid #0d0c0a;
-  border-radius: 4px;
-  padding: 10px 14px;
-  box-shadow: inset 0 2px 8px rgba(0,0,0,0.8), 0 0 6px rgba(0,255,80,0.08);
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-.nav-lcd-label {
-  font-family: 'VT323', monospace;
-  font-size: 11px;
-  color: #2a5a30;
+/* LCD supprimé — remplacé par logo */
+.nav-lcd { display: none; }
+
+.nav-drawer-title {
+  font-family: 'Boogaloo', cursive;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--accent);
   letter-spacing: 2px;
-  text-transform: uppercase;
-}
-.nav-lcd-value {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 10px;
-  color: #4dff6e;
-  letter-spacing: 1px;
-  text-shadow: 0 0 8px rgba(77,255,110,0.6);
+  line-height: 1;
+  display: block;
 }
 
 .nav-header-row {
+  margin-top: 4px;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-.nav-drawer-title {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 8px;
+
+.nav-header-row span {
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  color: #3a3835;
   letter-spacing: 2px;
-  color: #5a5650;
 }
+
 .nav-close {
-  background: #2a2825;
-  border: 1.5px solid #0d0c0a;
-  box-shadow: 1px 1px 0 #0d0c0a, inset 0 1px 0 rgba(255,255,255,0.06);
+  position: absolute;
+  top: 18px; right: 16px;
+  background: none;
+  border: 1px solid #3a3835;
+  color: #5a5650;
+  width: 26px; height: 26px;
+  border-radius: 2px;
   font-size: 14px;
   cursor: pointer;
-  color: #8a8075;
-  line-height: 1;
-  padding: 4px 8px;
-  border-radius: 2px;
+  display: flex; align-items: center; justify-content: center;
   font-family: 'VT323', monospace;
   transition: all 80ms;
+  line-height: 1; padding: 0;
 }
-.nav-close:hover { color: var(--accent); }
-.nav-close:active { box-shadow: inset 1px 1px 3px rgba(0,0,0,0.6); transform: translate(1px,1px); }
+.nav-close:hover { border-color: var(--accent); color: var(--accent); }
 
-/* ── Boutons de navigation (style touches de lecteur) ── */
+/* ── Tracklist ── */
 .nav-list {
   list-style: none; margin: 0;
-  padding: 20px 16px;
+  padding: 8px 0;
   flex: 1; overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;
 }
 
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   width: 100%;
-  padding: 14px 16px;
-  background: #2c2a26;
-  border: 1.5px solid #0d0c0a;
-  border-radius: 4px;
+  padding: 14px 20px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid #1a1917;
+  border-left: 3px solid transparent;
   cursor: pointer;
   text-align: left;
-  color: #8a8075;
-  box-shadow:
-    2px 2px 0 #0d0c0a,
-    inset 0 1px 0 rgba(255,255,255,0.07),
-    inset 0 -1px 0 rgba(0,0,0,0.3);
-  transition: all 80ms;
+  color: #5a5650;
+  transition: all 100ms;
   position: relative;
 }
 .nav-item:hover {
-  background: #333028;
+  background: #1a1917;
   color: #c8b89a;
 }
-.nav-item:active,
 .nav-item.is-active {
   background: #1a1917;
-  box-shadow:
-    inset 2px 2px 6px rgba(0,0,0,0.7),
-    inset 0 1px 0 rgba(0,0,0,0.5);
-  transform: translate(1px, 1px);
-  color: var(--accent);
+  border-left-color: var(--accent);
+  color: #ece2c9;
 }
 
-/* Voyant LED */
-.nav-led {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: #2a4a2a;
-  border: 1px solid #0d0c0a;
-  box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
+/* Supprime le voyant LED */
+.nav-led { display: none; }
+
+.nav-icon {
+  width: 28px;
   flex-shrink: 0;
-  transition: all 200ms;
-}
-.nav-item.is-active .nav-led {
-  background: var(--accent);
-  box-shadow: 0 0 6px var(--accent), 0 0 12px rgba(255,45,138,0.4);
-  animation: led-pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes led-pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 6px var(--accent), 0 0 12px rgba(255,45,138,0.4); }
-  50% { opacity: 0.7; box-shadow: 0 0 3px var(--accent); }
-}
-
-.nav-icon { width: 32px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-.nav-label {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 11px;
-  letter-spacing: 1px;
-  line-height: 1.5;
-  font-weight: 700;
-}
-.nav-item.is-active .nav-label { color: var(--accent); }
-
-/* Numéro de track à droite */
-.nav-track {
-  margin-left: auto;
-  font-family: 'VT323', monospace;
-  font-size: 18px;
-  color: #3a3835;
-  letter-spacing: 1px;
-  flex-shrink: 0;
-}
-.nav-item.is-active .nav-track { color: var(--accent); opacity: 0.5; }
-
-/* ── Pied du boîtier ── */
-.nav-drawer-foot {
-  padding: 14px 16px;
-  border-top: 2px solid #0d0c0a;
-  background: #181715;
-}
-.nav-prefs {
-  width: 100%;
-  background: #2c2a26;
-  border: 1.5px solid #0d0c0a;
-  border-radius: 4px;
-  padding: 10px 14px;
-  cursor: pointer;
-  font-family: 'VT323', monospace; font-size: 18px;
-  letter-spacing: 1px; color: #8a8075;
-  box-shadow: 2px 2px 0 #0d0c0a, inset 0 1px 0 rgba(255,255,255,0.06);
-  transition: all 80ms;
-  text-align: left;
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  opacity: 0.5;
+  transition: opacity 100ms;
 }
-.nav-prefs:hover { background: #333028; color: #c8b89a; }
-.nav-prefs:active { box-shadow: inset 2px 2px 5px rgba(0,0,0,0.6); transform: translate(1px,1px); }
+.nav-item:hover .nav-icon,
+.nav-item.is-active .nav-icon { opacity: 1; }
+
+.nav-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  line-height: 1.6;
+  font-weight: 400;
+  flex: 1;
+  color: inherit;
+}
+.nav-item.is-active .nav-label { color: #ece2c9; }
+
+/* Numéro de track style vinyle */
+.nav-track {
+  font-family: 'VT323', monospace;
+  font-size: 22px;
+  color: #2a2724;
+  letter-spacing: 1px;
+  flex-shrink: 0;
+  transition: color 100ms;
+}
+.nav-item.is-active .nav-track { color: var(--accent); opacity: 0.6; }
+.nav-item:hover .nav-track { color: #3a3835; }
+
+/* ── Pied ── */
+.nav-drawer-foot {
+  padding: 14px 20px;
+  border-top: 1px solid #1a1917;
+}
+
+.nav-prefs { display: none; }
 
 
 .page-title-pill {
