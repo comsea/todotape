@@ -16,6 +16,7 @@ import { TweaksPanel }   from './components/TweaksPanel';
 import { useServiceWorker } from '@/hooks/useServiceWorker';
 import { useInstallPrompt } from './hooks/useInstallPrompt';
 import { InstallBanner }    from './components/InstallBanner';
+import { MusicPlayer }      from './components/MusicPlayer';
 import { APP_VERSION } from './version';
 import { SplashScreen } from './components/SplashScreen';
 import { IconTapes, IconGrade, IconDashboard, IconArchives, IconSettings } from './components/NavIcons';
@@ -448,6 +449,8 @@ export function App() {
 
       <p className="foot-note">♪ vos tâches sont sauvegardées en local · côté A = à faire, côté B = fait ♪</p>
       <p className="foot-sign">By NervyFox <span className="foot-version">v{APP_VERSION}</span></p>
+
+      <MusicPlayer />
 
       {modal && (
         <AddTaskModal
