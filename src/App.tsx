@@ -14,6 +14,8 @@ import { GradeView }     from './views/GradeView';
 import { SettingsView }  from './views/SettingsView';import { AddTaskModal }  from './components/AddTaskModal';
 import { TweaksPanel }   from './components/TweaksPanel';
 import { useServiceWorker } from '@/hooks/useServiceWorker';
+import { useInstallPrompt } from './hooks/useInstallPrompt';
+import { InstallBanner }    from './components/InstallBanner';
 import { APP_VERSION } from './version';
 import { SplashScreen } from './components/SplashScreen';
 import { IconTapes, IconGrade, IconDashboard, IconArchives, IconSettings } from './components/NavIcons';
@@ -235,6 +237,8 @@ export function App() {
   const goHome   = () => { setPage('tapes'); setMenuOpen(false); };
 
   const { needRefresh, updateServiceWorker } = useServiceWorker();
+  const { canInstall, isIOS, triggerInstall, share } = useInstallPrompt();
+  const [showInstallBanner, setShowInstallBanner] = useState(true);
 
   // ── Données dérivées ──────────────────────────────────────────────────────
 
@@ -266,6 +270,16 @@ export function App() {
       {/* ── Bannière level up ── */}
       {levelUpMsg && (
         <div className="levelup-banner">{levelUpMsg}</div>
+      )}
+
+      {/* ── Bannière installation ── */}
+      {showInstallBanner && (canInstall || isIOS) && (
+        <InstallBanner
+          canInstall={canInstall}
+          isIOS={isIOS}
+          onInstall={() => { triggerInstall(); setShowInstallBanner(false); }}
+          onDismiss={() => setShowInstallBanner(false)}
+        />
       )}
 
       {/* ── Bannière PWA update ── */}
@@ -387,6 +401,9 @@ export function App() {
             onResetXP={handleResetXP}
             onExport={handleExport}
             onImport={handleImport}
+            onShare={share}
+            onInstall={canInstall ? triggerInstall : undefined}
+            canInstall={canInstall}
           />
         </main>
       )}

@@ -13,6 +13,9 @@ interface Props {
   onResetXP: () => void;
   onExport: () => void;
   onImport: (json: string) => void;
+  onShare: () => void;
+  onInstall?: () => void;
+  canInstall?: boolean;
 }
 
 const ACCENT_OPTIONS = [
@@ -59,7 +62,7 @@ function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) =>
   );
 }
 
-export function SettingsView({ settings, xp, onChange, onResetTasks, onResetXP, onExport, onImport }: Props) {
+export function SettingsView({ settings, xp, onChange, onResetTasks, onResetXP, onExport, onImport, onShare, onInstall, canInstall }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const grade   = getGrade(xp.total);
   const next    = getNextGrade(xp.total);
@@ -212,6 +215,24 @@ export function SettingsView({ settings, xp, onChange, onResetTasks, onResetXP, 
         <Row label="Réinitialiser les tâches" desc="Efface toutes les tâches en cours">
           <button type="button" className="set-btn danger" onClick={onResetTasks}>↺ Réinitialiser</button>
         </Row>
+      </div>
+
+      {/* ── Partager ── */}
+      <Section icon="📤" title="Partager" />
+
+      <div className="set-card">
+        <Row label="Partager l'app" desc="Envoie le lien à un ami">
+          <button type="button" className="set-btn" onClick={onShare}>
+            ↗ Partager
+          </button>
+        </Row>
+        {canInstall && onInstall && (
+          <Row label="Installer l'app" desc="Ajouter sur l'écran d'accueil">
+            <button type="button" className="set-btn" onClick={onInstall}>
+              ▶ Installer
+            </button>
+          </Row>
+        )}
       </div>
 
       {/* ── À propos ── */}
