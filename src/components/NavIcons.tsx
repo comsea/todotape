@@ -68,3 +68,15 @@ export function IconArchives({ active, size = 26 }: IconProps) {
     </svg>
   );
 }
+
+// ⚙ Paramètres — engrenage style rétro
+export function IconSettings({ active, size = 26 }: IconProps) {
+  const c = C(active);
+  return (
+    <svg width={size} height={size} viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="13" cy="13" r="4" stroke={c} strokeWidth="1.5"/>
+      <path d="M13 2v3M13 21v3M2 13h3M21 13h3M4.9 4.9l2.1 2.1M18.9 18.9l2.1 2.1M4.9 21.1l2.1-2.1M18.9 7.1l2.1-2.1" stroke={c} strokeWidth="1.5" strokeLinecap="round"/>
+      <circle cx="13" cy="13" r="7" stroke={c} strokeWidth="1.5" strokeDasharray="2 2"/>
+    </svg>
+  );
+}

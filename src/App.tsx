@@ -11,14 +11,15 @@ import { TodayView }     from './views/TodayView';
 import { DashboardView } from './views/DashboardView';
 import { ArchivesView }  from './views/ArchivesView';
 import { GradeView }     from './views/GradeView';
+import { SettingsView }  from './views/SettingsView';
 import { AddTaskModal }  from './components/AddTaskModal';
 import { TweaksPanel }   from './components/TweaksPanel';
 import { useServiceWorker } from '@/hooks/useServiceWorker';
 import { APP_VERSION } from './version';
 import { SplashScreen } from './components/SplashScreen';
-import { IconTapes, IconGrade, IconDashboard, IconArchives } from './components/NavIcons';
+import { IconTapes, IconGrade, IconDashboard, IconArchives, IconSettings } from './components/NavIcons';
 import type { Task } from './store/types';
-type PageId = 'tapes' | 'dashboard' | 'archives' | 'grade';
+type PageId = 'tapes' | 'dashboard' | 'archives' | 'grade' | 'settings';
 type TapeView = 'today' | 'week' | 'next';
 
 function computeWeek(offsetWeeks: number): DayMeta[] {
@@ -62,6 +63,7 @@ const NAV: Array<{ id: PageId; label: string; Icon: React.FC<{ active?: boolean;
   { id: 'grade',     label: 'Grade & XP',       Icon: IconGrade     },
   { id: 'dashboard', label: 'Tableau de bord',  Icon: IconDashboard },
   { id: 'archives',  label: 'Archives',          Icon: IconArchives  },
+  { id: 'settings',  label: 'Paramètres',        Icon: IconSettings  },
 ];
 
 export function App() {
@@ -204,6 +206,28 @@ export function App() {
     clearAll().then(() => setState(makeSeedState()));
   }, []);
 
+  const handleResetXP = useCallback(() => {
+    setXP({ total: 0, lastStreakDate: null });
+  }, []);
+
+  const handleExport = useCallback(() => {
+    const data = JSON.stringify({ tasks: state.tasks, done: state.done }, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `todotape-backup-${new Date().toISOString().slice(0,10)}.json`;
+    a.click(); URL.revokeObjectURL(url);
+  }, [state]);
+
+  const handleImport = useCallback((json: string) => {
+    try {
+      const parsed = JSON.parse(json);
+      if (!Array.isArray(parsed.tasks)) { alert('Fichier invalide'); return; }
+      if (!confirm('Remplacer toutes les tâches par celles du fichier ?')) return;
+      setState({ tasks: parsed.tasks, done: parsed.done ?? [] });
+    } catch { alert('Fichier JSON invalide'); }
+  }, []);
+
   const handleTweakChange = useCallback((key: keyof TweakSettings, value: TweakSettings[keyof TweakSettings]) => {
     setSettings(s => ({ ...s, [key]: value }));
   }, []);
@@ -279,9 +303,9 @@ export function App() {
           ))}
         </ul>
         <div className="nav-drawer-foot">
-          <button className="nav-prefs" onClick={() => { setMenuOpen(false); setPrefsOpen(true); }}>
-            <span>⚙</span> Préférences
-          </button>
+          <div style={{ padding: '10px 16px', fontFamily: 'VT323, monospace', fontSize: '14px', color: '#3a3835', textAlign: 'center', letterSpacing: '1px' }}>
+            TODOTAPE v{APP_VERSION} · NervyFox
+          </div>
         </div>
       </nav>
 
@@ -351,8 +375,18 @@ export function App() {
       {page === 'dashboard' && (
         <main className="canvas secondary-page"><DashboardView state={state} currentWeekDates={currentWeekDates} todayKey={todayKey} /></main>
       )}
-      {page === 'archives' && (
-        <main className="canvas secondary-page"><ArchivesView state={state} /></main>
+      {page === 'settings' && (
+        <main className="canvas secondary-page">
+          <SettingsView
+            settings={settings}
+            xp={xp}
+            onChange={handleTweakChange}
+            onResetTasks={handleReset}
+            onResetXP={handleResetXP}
+            onExport={handleExport}
+            onImport={handleImport}
+          />
+        </main>
       )}
 
       {/* ── Page principale Mes Tapes ── */}
@@ -369,7 +403,6 @@ export function App() {
               </div>
             </div>
             <div className="toolbar-actions">
-              <button className="btn-icon" onClick={() => setPrefsOpen(p => !p)} title="Préférences">⚙</button>
               <button className="btn-sketch primary" onClick={() => openAdd(
                 tapeView === 'today' ? todayKey : undefined,
                 tapeView === 'next' ? 'next' : 'current',
