@@ -2406,7 +2406,7 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 150;
+  z-index: 80;
   width: calc(100% - 32px);
   max-width: 520px;
   padding-bottom: env(safe-area-inset-bottom);
