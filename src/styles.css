@@ -2398,101 +2398,166 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
 }
 
 /* ============================================================
-   Music Player
+   Music Player — Floating Pill
    ============================================================ */
 
 .music-player {
   position: fixed;
-  bottom: 0; left: 0; right: 0;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 150;
-  background: #111009;
-  border-top: 2.5px solid #ff2d8a;
-  box-shadow: 0 -4px 24px rgba(0,0,0,0.5);
-  transition: all 200ms ease;
-  safe-area-inset-bottom: env(safe-area-inset-bottom);
+  width: calc(100% - 32px);
+  max-width: 520px;
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* ── Mini barre ── */
-.mp-mini {
+/* ── Pill principale ── */
+.mp-pill {
+  background: #1a1917;
+  border: 2.5px solid #ff2d8a;
+  border-radius: 50px;
+  box-shadow: 4px 4px 0 #ff2d8a;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
-  cursor: pointer;
-  user-select: none;
+  gap: 14px;
+  padding: 10px 14px 10px 18px;
+  cursor: default;
 }
-.mp-mini:hover { background: #1a1917; }
 
-.mp-mini-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.mp-mini-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: #3a3835;
-  border: 1.5px solid #2a2724;
-  transition: all 200ms;
+.mp-logo {
+  font-family: 'Boogaloo', cursive;
+  font-size: 20px;
+  font-weight: 700;
+  color: #ff2d8a;
+  letter-spacing: 1px;
+  white-space: nowrap;
   flex-shrink: 0;
 }
-.mp-mini-dot.playing {
+
+.mp-sep {
+  width: 1.5px;
+  height: 26px;
+  background: #2a2724;
+  flex-shrink: 0;
+}
+
+.mp-center {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+.mp-center:hover .mp-track-title { color: #ece2c9; }
+
+.mp-track-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  color: #8a8075;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 100ms;
+  line-height: 1.4;
+}
+.music-player.is-playing .mp-track-title { color: #ece2c9; }
+
+.mp-track-sub {
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  color: #3a3835;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mp-prog-line {
+  height: 2px;
+  background: #1e1d1a;
+  border-radius: 1px;
+  margin-top: 5px;
+  overflow: hidden;
+}
+.mp-prog-fill {
+  height: 100%;
   background: #ff2d8a;
+  border-radius: 1px;
+  transition: width 0.1s linear;
+}
+
+/* Dot pulsant */
+.mp-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #2a2724;
+  border: 1.5px solid #3a3835;
+  flex-shrink: 0;
+  transition: all 200ms;
+}
+.music-player.is-playing .mp-dot {
+  background: #ff2d8a;
+  border-color: #ff2d8a;
   box-shadow: 0 0 6px #ff2d8a;
   animation: dot-pulse 1.2s ease-in-out infinite;
 }
-@keyframes dot-pulse {
-  0%,100% { box-shadow: 0 0 4px #ff2d8a; }
-  50%      { box-shadow: 0 0 10px #ff2d8a, 0 0 20px rgba(255,45,138,0.3); }
-}
-.mp-mini-name {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 8px;
-  color: #8a8075;
-  letter-spacing: 1px;
-}
-.music-player.is-playing .mp-mini-name { color: #ece2c9; }
-.mp-mini-right {
+
+/* Contrôles */
+.mp-controls {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
+  flex-shrink: 0;
 }
-.mp-mini-play {
-  background: #ff2d8a;
+.mp-btn {
+  background: none;
   border: none;
-  color: #1a1917;
+  color: #5a5650;
   font-family: 'Press Start 2P', monospace;
-  font-size: 10px;
-  width: 28px; height: 28px;
+  font-size: 8px;
   cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 80ms;
-  border-radius: 2px;
+  padding: 4px 6px;
+  transition: color 80ms;
+  line-height: 1;
 }
-.mp-mini-play:hover { background: #e01a70; }
-.mp-mini-chevron {
+.mp-btn:hover { color: #ece2c9; }
+.mp-btn-play {
+  background: #ff2d8a;
+  border-radius: 50%;
+  width: 32px; height: 32px;
+  color: #1a1917;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 10px;
-  color: #3a3835;
-  font-family: 'VT323', monospace;
+  padding: 0;
+  transition: background 80ms;
+}
+.mp-btn-play:hover { background: #e01a70; color: #1a1917; }
+
+/* ── Panel étendu (tracklist + volume) ── */
+.mp-panel {
+  background: #1a1917;
+  border: 2.5px solid #ff2d8a;
+  border-bottom: none;
+  border-radius: 16px 16px 0 0;
+  margin: 0 8px;
+  padding: 14px 16px 10px;
+  animation: panel-up 200ms ease;
+}
+@keyframes panel-up {
+  from { opacity:0; transform:translateY(10px); }
+  to   { opacity:1; transform:translateY(0); }
 }
 
-/* ── Full player ── */
-.mp-full {
-  border-top: 1px solid #1a1917;
-  padding: 12px 16px 14px;
-}
-
-/* Visualiseur */
 .mp-viz {
   display: flex;
   align-items: flex-end;
   gap: 2px;
-  height: 36px;
-  margin-bottom: 12px;
+  height: 28px;
   background: #0a0908;
   padding: 4px 6px;
-  border: 1px solid #1a1917;
+  border: 1px solid #1e1d1a;
+  margin-bottom: 10px;
 }
 .mp-viz-bar {
   flex: 1;
@@ -2502,136 +2567,27 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
   transition: height 0.08s ease;
 }
 
-/* Info */
-.mp-track-info {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-.mp-track-name {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 9px;
-  color: #ece2c9;
-  letter-spacing: 1px;
-}
-.mp-track-artist {
-  font-family: 'VT323', monospace;
-  font-size: 16px;
-  color: #5a5650;
-}
-
-/* Progress */
-.mp-progress {
-  height: 5px;
-  background: #1e1d1a;
-  border: 1px solid #2a2724;
-  cursor: pointer;
-  margin-bottom: 4px;
-  position: relative;
-}
-.mp-progress:hover { border-color: #ff2d8a; }
-.mp-progress-fill {
-  height: 100%;
-  background: #ff2d8a;
-  transition: width 0.1s linear;
-}
-.mp-times {
-  display: flex;
-  justify-content: space-between;
-  font-family: 'VT323', monospace;
-  font-size: 13px;
-  color: #3a3835;
-  margin-bottom: 10px;
-}
-
-/* Contrôles */
-.mp-controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-.mp-btn {
-  background: #1e1d1a;
-  border: 1.5px solid #2a2724;
-  color: #8a8075;
-  font-family: 'Press Start 2P', monospace;
-  font-size: 10px;
-  padding: 7px 14px;
-  cursor: pointer;
-  transition: all 80ms;
-  border-radius: 2px;
-}
-.mp-btn:hover { border-color: #ff2d8a; color: #ff2d8a; }
-.mp-btn-play {
-  background: #ff2d8a;
-  border-color: #ff2d8a;
-  color: #1a1917;
-  padding: 9px 20px;
-  font-size: 12px;
-}
-.mp-btn-play:hover { background: #e01a70; color: #1a1917; }
-
-/* Volume */
-.mp-volume {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-.mp-vol-icon {
-  font-family: 'VT323', monospace;
-  font-size: 18px;
-  color: #5a5650;
-}
-.mp-vol-slider {
-  flex: 1;
-  -webkit-appearance: none;
-  height: 4px;
-  background: #1e1d1a;
-  border: 1px solid #2a2724;
-  outline: none;
-  cursor: pointer;
-}
-.mp-vol-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 12px; height: 12px;
-  background: #ff2d8a;
-  cursor: pointer;
-  border-radius: 0;
-}
-.mp-vol-val {
-  font-family: 'VT323', monospace;
-  font-size: 14px;
-  color: #5a5650;
-  min-width: 24px;
-  text-align: right;
-}
-
-/* Tracklist */
 .mp-tracklist {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  border-top: 1px solid #1a1917;
-  padding-top: 10px;
+  margin-bottom: 10px;
 }
 .mp-track-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 7px 8px;
+  gap: 8px;
+  padding: 7px 10px;
   background: none;
   border: 1px solid transparent;
   cursor: pointer;
   text-align: left;
-  transition: all 80ms;
   width: 100%;
+  transition: all 80ms;
+  border-radius: 3px;
 }
-.mp-track-item:hover { background: #1a1917; border-color: #2a2724; }
-.mp-track-item.active { border-color: #ff2d8a; background: #1a1917; }
+.mp-track-item:hover { background: #111009; border-color: #2a2724; }
+.mp-track-item.active { border-color: #ff2d8a; background: #111009; }
 .mp-track-num {
   font-family: 'VT323', monospace;
   font-size: 18px;
@@ -2639,26 +2595,54 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
   min-width: 22px;
 }
 .mp-track-item.active .mp-track-num { color: #ff2d8a; }
-.mp-track-title {
+.mp-track-name-list {
   font-family: 'Press Start 2P', monospace;
   font-size: 7px;
   color: #5a5650;
   flex: 1;
   letter-spacing: 0.5px;
 }
-.mp-track-item.active .mp-track-title { color: #ece2c9; }
+.mp-track-item.active .mp-track-name-list { color: #ece2c9; }
+.mp-track-artist-list {
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  color: #3a3835;
+}
 .mp-playing-dot {
   font-size: 8px;
   color: #ff2d8a;
   animation: dot-pulse 1s ease-in-out infinite;
 }
 
-/* Décaler le contenu de l'app vers le haut pour laisser place au player */
-.page { padding-bottom: 120px !important; }
-.mp-track-artist-small {
-  font-family: 'VT323', monospace;
-  font-size: 14px;
-  color: #3a3835;
-  margin-left: 4px;
+.mp-vol-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #1e1d1a;
 }
-.mp-track-item.active .mp-track-artist-small { color: #5a5650; }
+.mp-vol-icon { font-family:'VT323',monospace; font-size:16px; color:#3a3835; }
+.mp-vol-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 3px;
+  background: #1e1d1a;
+  outline: none;
+  cursor: pointer;
+}
+.mp-vol-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 10px; height: 10px;
+  background: #ff2d8a;
+  cursor: pointer;
+  border-radius: 50%;
+}
+.mp-vol-val { font-family:'VT323',monospace; font-size:13px; color:#3a3835; min-width:22px; text-align:right; }
+
+@keyframes dot-pulse {
+  0%,100% { box-shadow: 0 0 4px #ff2d8a; }
+  50%      { box-shadow: 0 0 10px #ff2d8a, 0 0 20px rgba(255,45,138,0.3); }
+}
+
+/* Décaler le contenu */
+.page { padding-bottom: 90px !important; }
