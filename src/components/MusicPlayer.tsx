@@ -8,8 +8,8 @@ interface Track {
 }
 
 const TRACKS: Track[] = [
-  { id: 1, name: 'Got It Made', artist: 'Møme, Ricky Ducati', file: '/todotape/music/Mome-GotIt.mp3' },
-  { id: 2, name: 'Nightcall', artist: 'Kavinsky', file: '/todotape/music/Kavinsky-Nightcall.mp3' },
+  { id: 1, name: 'Got It Made', artist: 'Møme, Ricky Ducati', file: '/todotape/music/track-01.mp3' },
+  { id: 2, name: 'Nightcall', artist: 'Kavinsky', file: '/todotape/music/track-02.mp3' },
   { id: 3, name: 'TRACK 03', artist: 'Artiste', file: '/todotape/music/track-03.mp3' },
   { id: 4, name: 'TRACK 04', artist: 'Artiste', file: '/todotape/music/track-04.mp3' },
 ];
