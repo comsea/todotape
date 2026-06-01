@@ -2655,3 +2655,10 @@ body:has(.page[data-paper-grid="0"])::before { opacity: 0; }
 
 /* Décaler le contenu de l'app vers le haut pour laisser place au player */
 .page { padding-bottom: 120px !important; }
+.mp-track-artist-small {
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  color: #3a3835;
+  margin-left: 4px;
+}
+.mp-track-item.active .mp-track-artist-small { color: #5a5650; }
