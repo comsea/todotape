@@ -222,8 +222,7 @@ export function SettingsView({ settings, xp, onChange, onResetTasks, onResetXP, 
         <div className="set-about-version">version {APP_VERSION}</div>
         <div className="set-about-made">Fait avec ♥ par <b>NervyFox</b></div>
         <div className="set-about-desc">
-          Une todo list rétro-groove pensée pour les cerveaux TDAH.
-          Coche, progresse, deviens légende.
+          Une todo list rétro-groove pour organiser ta semaine avec style.
         </div>
       </div>
 

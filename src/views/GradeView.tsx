@@ -103,7 +103,7 @@ export function GradeView({ xp }: Props) {
         </div>
 
         <div className="grade-howto-tip">
-          💬 <b>Conseil TDAH :</b> commence par une petite tâche priorité 1 pour déclencher le bonus streak et te mettre en mouvement. Le reste suivra naturellement !
+          💬 <b>Conseil :</b> commence par une petite tâche priorité 1 pour déclencher le bonus streak et te mettre en mouvement. Le reste suivra naturellement !
         </div>
       </div>
 
