@@ -76,6 +76,7 @@ export function App() {
   const [levelUpMsg, setLevelUpMsg] = useState<string | null>(null);
   const [page, setPage]           = useState<PageId>('tapes');
   const [tapeView, setTapeView]   = useState<TapeView>('week');
+
   const [menuOpen, setMenuOpen]   = useState(false);
   const [modal, setModal]         = useState<{ prefillDay?: DayKey; prefillWeek?: WeekKey } | null>(null);
   const [prefsOpen, setPrefsOpen] = useState(false);
@@ -96,6 +97,10 @@ export function App() {
       setState(sWithRecurring);
       setSettings(cfg);
       setXP(x);
+      // Appliquer la vue par défaut
+      if (cfg.default_view === 'today' || cfg.default_view === 'week' || cfg.default_view === 'next') {
+        setTapeView(cfg.default_view);
+      }
       setLoading(false);
       maybeArchivePreviousWeek(s);
     });
